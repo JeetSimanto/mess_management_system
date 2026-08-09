@@ -62,7 +62,7 @@ coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-
 desugar-jdk = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJdk" }
 
 # Google Sign-In
-google-auth = { module = "com.google.android.gms:play-services-auth:21.2.0" }
+google-auth = { module = "com.google.android.gms:play-services-auth", version = "21.2.0" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
