@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Mess Manager</string>
+    <!-- Filled by google-services plugin during build; fallback for compilation -->
+    <string name="default_web_client_id" translatable="false">379476436554-4jmgrbi63kbdobojpf5r6dsu4cpav3cp.apps.googleusercontent.com</string>
+</resources>

@@ -1,0 +1,19 @@
+# Built outputs
+/build/
+/app/build/
+*.apk
+*.aab
+
+# Gradle
+.gradle/
+local.properties
+
+# IDE
+.idea/
+*.iml
+.DS_Store
+
+# Firebase (keep google-services.json tracked)
+# google-services.json is intentionally tracked
+
+# Planning docs are intentionally tracked

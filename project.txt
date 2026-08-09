@@ -1,0 +1,116 @@
+================================================================================
+MESS MANAGEMENT SYSTEM - FEATURE SPECIFICATION & DOCUMENTATION
+================================================================================
+
+OVERVIEW
+--------
+The Mess Management System Template is a comprehensive, structured financial 
+and operational tracking android app designed for shared housing, hostels, 
+bachelor mess setups, and communal living groups. It automates expense tracking,
+daily meal counting, member fund contributions, meal rate calculations, equal 
+utility sharing, and monthly individual financial settlements.
+
+
+1. GROCERY PURCHASES TRACKING (GROCERY)
+-------------------------------------------------
+Key Purpose:
+  - Records all food, raw ingredients, and daily grocery expenses incurred for 
+    the mess.
+
+Core Features & Structure:
+  - Line-by-Line Entry: Captures Date, Item Name, Unit of Measurement (e.g., kg, 
+    pcs, liters), Quantity, Total Cost in BDT, and 
+    descriptive Notes (optional).
+  - Automated Grocery Total: Automatically calculates the aggregate monthly food 
+    expenditure (TOTAL GROCERY EXPENSES).
+
+2. UTILITY & HOUSEHOLD EXPENSES MANAGEMENT (UTILITY)
+----------------------------------------------------------
+Key Purpose:
+  - Tracks shared living expenses independent of meal costs, ensuring non-food 
+    bills are categorized and divided fairly.
+
+Core Features & Structure:
+  - Bill Categorization: Tracks bill types such as House Rent (basa vara), Water 
+    Bill (pani), Waste Collection (moila), Transport/Market Travel (bazar jatayat), 
+    and Utensil Supplies (ghor jharu, ghor muchni, knife, basket).
+  - Notes.
+  - Automated Utility Total: Aggregates total monthly utility and maintenance costs 
+    (TOTAL UTILITY).
+
+
+3. DAILY MEAL TRACKER (DAILY MEAL TRACKING)
+--------------------------------------------
+Key Purpose:
+  - Tracks daily meal consumption per member to ensure meal costs are allocated 
+    proportionally based on actual consumption.
+
+Core Features & Structure:
+  - Monthly Calendar Grid: Columns for Days 1 through 31, with individual columns 
+    for each member (e.g., Jeet, Sagnik, Antu, Noyon).
+  - Daily Total Counter: Automatically sums meals consumed across all members on a 
+    given day (DAILY TOTAL).
+  - Individual Monthly Totals: Sums total meals eaten by each member at the end of 
+    the month, as well as the collective mess meal grand total (TOTAL MEALS CONSUMED).
+
+
+4. MEMBER CONTRIBUTIONS & DEPOSIT LOG (MEMBER CONTRIBUTIONS)
+-------------------------------------------------------------
+Key Purpose:
+  - Registers all monetary deposits, advances, and bill payments made by mess 
+    members throughout the month.
+
+Core Features & Structure:
+  - Detailed Deposit Ledger: Records Member Name, Contribution Amount (BDT), 
+    Date Paid, and Purpose Note 
+  - Member-Wise Aggregate Table: Automatically sums total contributions per person 
+    (TOTAL CONTRIBUTIONS PER MEMBER).
+  - Grand Total Fund: Displays the cumulative fund collected across all members 
+    (GRAND TOTAL CONTRIBUTIONS).
+
+
+5. DASHBOARD(homepage)
+--------------------------------------------------------------------
+Key Purpose:
+  - Performs all backend mathematical logic to determine individual cost 
+    responsibilities, meal rates, and final balance settlements.
+
+Sub-Features & Analytical Components:
+
+  A. Expense Overview
+     - Summarizes Total Grocery Expenses, Total Utility Expenses, Combined Total 
+       Mess Expenses, Total Member Contributions, and Overall Surplus/Deficit.
+
+  B. Dynamic Meal Rate Calculation
+     - Formula: Meal Rate = Total Grocery Expenses / Total Meals Consumed.
+     - Ensures meal costs cover only raw food expenses, keeping food expenses 
+       strictly variable per meal eaten.
+
+  C. Equal Utility Division
+     - Formula: Utility Share per Member = Total Utility Expenses / Number of Members.
+     - Fixed head-count division for common house costs (rent, water, utilities).
+
+  D. Member-Wise Cost Breakdown Table
+     - Calculates individual Grocery Cost: (Individual Meals × Calculated Meal Rate).
+     - Adds fixed Utility Share per member.
+     - Derives Total Individual Cost: (Individual Grocery Cost + Individual Utility Share).
+     - Compares Total Individual Cost against Total Individual Contribution.
+     - Computes Net Individual Balance: (Contribution - Total Individual Cost).
+
+  E. Final Settlement Status & Action Required
+     - Provides clear, actionable financial directives for every member:
+       * Positive Balance (+): Displays "GET BACK BDT X" (Member paid more than 
+         their fair share and is due a refund).
+       * Negative Balance (-): Displays "PAY EXTRA BDT Y" (Member underpaid and 
+         must deposit additional funds to clear their balance).
+
+
+6. WORKFLOW & SYSTEM USAGE HIGHLIGHTS
+------------------------------------
+  - Transparency: Distinguishes variable meal costs from fixed house utilities, 
+    preventing non-diners from paying for food costs while maintaining equal rent/utility splitting.
+  - Payment Transparency: Supports multiple payment methods (Bkash, Cash) with 
+    traceable date stamps and notes.
+  - End-of-Month Automated Reconciliation: Removes manual math errors and provides 
+    instant refund or pay-up instructions for final account closure.
+================================================================================

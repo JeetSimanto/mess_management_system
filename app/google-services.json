@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "379476436554",
+    "project_id": "mess-management-system-fe4dc",
+    "storage_bucket": "mess-management-system-fe4dc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:379476436554:android:10cd71eacdf712d807e8b3",
+        "android_client_info": {
+          "package_name": "com.messmanager.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "379476436554-4jmgrbi63kbdobojpf5r6dsu4cpav3cp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBm7qziM4yXEjUTGYxnxSQ6i1uIecOIYVw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "379476436554-4jmgrbi63kbdobojpf5r6dsu4cpav3cp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
