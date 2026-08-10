@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "379476436554-capbbrji1tghk15a3urcggfsd7qvvmrb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.messmanager.app",
+            "certificate_hash": "ee75638d7ea06fcc6e8c252a31830cd19e693495"
+          }
+        },
+        {
           "client_id": "379476436554-4jmgrbi63kbdobojpf5r6dsu4cpav3cp.apps.googleusercontent.com",
           "client_type": 3
         }
