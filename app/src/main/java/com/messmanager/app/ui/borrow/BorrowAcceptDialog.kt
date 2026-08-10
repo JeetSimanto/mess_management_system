@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.messmanager.app.domain.model.BorrowRequest
+import com.messmanager.app.ui.components.appTextFieldColors
 import com.messmanager.app.ui.theme.RadiusLg
 import com.messmanager.app.util.DateUtils
 
@@ -55,6 +56,7 @@ fun BorrowAcceptDialog(
                     onValueChange = { dueDate = it },
                     label = { Text("Return Due Date (YYYY-MM-DD)") },
                     singleLine = true,
+                    colors = appTextFieldColors(),
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(RadiusLg)
                 )

@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.messmanager.app.domain.model.Grocery
 import com.messmanager.app.domain.model.Member
+import com.messmanager.app.ui.components.appTextFieldColors
 import com.messmanager.app.ui.theme.RadiusLg
 import com.messmanager.app.util.CurrencyFormatter
 import com.messmanager.app.util.DateUtils
@@ -86,6 +87,7 @@ fun GroceryFormSheet(
                 label = { Text("Item Name") },
                 placeholder = { Text("e.g. Rice / Eggs / Oil") },
                 singleLine = true,
+                colors = appTextFieldColors(),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(RadiusLg)
             )
@@ -99,6 +101,7 @@ fun GroceryFormSheet(
                     label = { Text("Quantity") },
                     placeholder = { Text("5") },
                     singleLine = true,
+                    colors = appTextFieldColors(),
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(RadiusLg)
                 )
@@ -117,6 +120,7 @@ fun GroceryFormSheet(
                         readOnly = true,
                         label = { Text("Unit") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitExpanded) },
+                        colors = appTextFieldColors(),
                         modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
                         shape = RoundedCornerShape(RadiusLg)
                     )
@@ -145,6 +149,7 @@ fun GroceryFormSheet(
                 label = { Text("Cost (BDT ৳)") },
                 placeholder = { Text("650") },
                 singleLine = true,
+                colors = appTextFieldColors(),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(RadiusLg)
             )
@@ -163,6 +168,7 @@ fun GroceryFormSheet(
                     readOnly = true,
                     label = { Text("Bought By") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = buyerExpanded) },
+                    colors = appTextFieldColors(),
                     modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
                     shape = RoundedCornerShape(RadiusLg)
                 )
@@ -189,6 +195,7 @@ fun GroceryFormSheet(
                 onValueChange = { note = it },
                 label = { Text("Note (Optional)") },
                 placeholder = { Text("e.g. Bought from Minabazar") },
+                colors = appTextFieldColors(),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(RadiusLg)
             )

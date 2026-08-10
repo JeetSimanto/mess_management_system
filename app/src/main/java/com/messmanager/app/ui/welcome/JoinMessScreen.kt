@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.messmanager.app.ui.components.appTextFieldColors
 import com.messmanager.app.ui.theme.RadiusLg
 import com.messmanager.app.util.Constants
 
@@ -88,6 +89,7 @@ fun JoinMessScreen(
                 label = { Text("6-Digit Invite Code") },
                 placeholder = { Text("e.g. X7K9P2") },
                 singleLine = true,
+                colors = appTextFieldColors(),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(RadiusLg)
             )

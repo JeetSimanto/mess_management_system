@@ -30,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.messmanager.app.domain.model.Contribution
 import com.messmanager.app.domain.model.Member
+import com.messmanager.app.ui.components.appTextFieldColors
 import com.messmanager.app.ui.theme.RadiusLg
 import com.messmanager.app.util.CurrencyFormatter
 import com.messmanager.app.util.DateUtils
@@ -84,6 +85,7 @@ fun ContributionFormSheet(
                     readOnly = true,
                     label = { Text("Deposited By") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = memberExpanded) },
+                    colors = appTextFieldColors(),
                     modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
                     shape = RoundedCornerShape(RadiusLg)
                 )
@@ -111,6 +113,7 @@ fun ContributionFormSheet(
                 label = { Text("Deposit Amount (BDT ৳)") },
                 placeholder = { Text("3000") },
                 singleLine = true,
+                colors = appTextFieldColors(),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(RadiusLg)
             )
@@ -123,6 +126,7 @@ fun ContributionFormSheet(
                 label = { Text("Purpose / Note") },
                 placeholder = { Text("e.g. Monthly Deposit / Initial Fund") },
                 singleLine = true,
+                colors = appTextFieldColors(),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(RadiusLg)
             )

@@ -37,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.messmanager.app.ui.components.appTextFieldColors
 import com.messmanager.app.ui.theme.RadiusLg
 import java.time.LocalDate
 import java.time.Month
@@ -102,6 +103,7 @@ fun CreateMessScreen(
                 label = { Text("Mess Name") },
                 placeholder = { Text("e.g. Mirpur Bachelors") },
                 singleLine = true,
+                colors = appTextFieldColors(),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(RadiusLg)
             )
@@ -122,6 +124,7 @@ fun CreateMessScreen(
                         readOnly = true,
                         label = { Text("Month") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = monthExpanded) },
+                        colors = appTextFieldColors(),
                         modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
                         shape = RoundedCornerShape(RadiusLg)
                     )
@@ -155,6 +158,7 @@ fun CreateMessScreen(
                         readOnly = true,
                         label = { Text("Year") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = yearExpanded) },
+                        colors = appTextFieldColors(),
                         modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
                         shape = RoundedCornerShape(RadiusLg)
                     )

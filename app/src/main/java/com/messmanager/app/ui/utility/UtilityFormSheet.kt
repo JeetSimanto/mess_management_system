@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.messmanager.app.domain.model.Utility
+import com.messmanager.app.ui.components.appTextFieldColors
 import com.messmanager.app.ui.theme.RadiusLg
 import com.messmanager.app.util.CurrencyFormatter
 import com.messmanager.app.util.DateUtils
@@ -72,6 +73,7 @@ fun UtilityFormSheet(
                 label = { Text("Title") },
                 placeholder = { Text("e.g. House Rent / Desco Electricity") },
                 singleLine = true,
+                colors = appTextFieldColors(),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(RadiusLg)
             )
@@ -90,6 +92,7 @@ fun UtilityFormSheet(
                     readOnly = true,
                     label = { Text("Category") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = categoryExpanded) },
+                    colors = appTextFieldColors(),
                     modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
                     shape = RoundedCornerShape(RadiusLg)
                 )
@@ -117,6 +120,7 @@ fun UtilityFormSheet(
                 label = { Text("Cost (BDT ৳)") },
                 placeholder = { Text("12000") },
                 singleLine = true,
+                colors = appTextFieldColors(),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(RadiusLg)
             )
