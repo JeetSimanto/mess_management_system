@@ -12,6 +12,8 @@ jobs:
   build:
     name: Build Release APK
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     env:
       GRADLE_OPTS: "-Xmx3072m -Dorg.gradle.daemon=false"
 
@@ -39,13 +41,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mess-manager-release
-          path: app/build/outputs/apk/release/*.apk
+          path: app/build/outputs/apk/**/*.apk
 
       - name: Create GitHub Release (On Tag)
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: app/build/outputs/apk/release/*.apk
+          files: app/build/outputs/apk/**/*.apk
           draft: false
           prerelease: false
         env:
