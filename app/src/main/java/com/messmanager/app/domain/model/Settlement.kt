@@ -10,6 +10,8 @@ data class MemberSettlement(
     val memberUid: String = "",
     val memberName: String = "",
     val totalMeals: Double = 0.0,
+    val rawMeals: Double = 0.0,
+    val isFixedMealApplied: Boolean = false,
     val groceryCostPaisa: Long = 0,
     val utilitySharePaisa: Long = 0,
     val totalCostPaisa: Long = 0,

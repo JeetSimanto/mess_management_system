@@ -104,7 +104,8 @@ class DashboardRepository @Inject constructor(
                 groceries = groceries,
                 utilities = utilities,
                 meals = meals,
-                contributions = contributions
+                contributions = contributions,
+                fixedMealCount = mess.fixedMealCount
             )
         }
     }

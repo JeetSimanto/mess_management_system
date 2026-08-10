@@ -178,8 +178,13 @@ private fun MemberSettlementRow(ms: MemberSettlement) {
                 style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
                 color = MaterialTheme.colorScheme.onSurface
             )
+            val mealDetailsText = if (ms.isFixedMealApplied) {
+                "${ms.totalMeals} meals (Min ${ms.totalMeals}, Ate ${ms.rawMeals}) · Cost: ${CurrencyFormatter.formatPaisa(ms.totalCostPaisa)} · Paid: ${CurrencyFormatter.formatPaisa(ms.totalContributionPaisa)}"
+            } else {
+                "${ms.totalMeals} meals · Cost: ${CurrencyFormatter.formatPaisa(ms.totalCostPaisa)} · Paid: ${CurrencyFormatter.formatPaisa(ms.totalContributionPaisa)}"
+            }
             Text(
-                text = "${ms.totalMeals} meals · Cost: ${CurrencyFormatter.formatPaisa(ms.totalCostPaisa)} · Paid: ${CurrencyFormatter.formatPaisa(ms.totalContributionPaisa)}",
+                text = mealDetailsText,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

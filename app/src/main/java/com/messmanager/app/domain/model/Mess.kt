@@ -8,5 +8,7 @@ data class Mess(
     val month: Int = 1,
     val year: Int = 2026,
     val memberIds: List<String> = emptyList(),
+    val fixedMealCount: Double = 0.0,
+    val isSettled: Boolean = false,
     val createdAt: Long = System.currentTimeMillis()
 )

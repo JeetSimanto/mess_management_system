@@ -12,6 +12,8 @@ data class MessDocument(
     val month: Int = 1,
     val year: Int = 2026,
     val memberIds: List<String> = emptyList(),
+    val fixedMealCount: Double = 0.0,
+    val isSettled: Boolean = false,
     @ServerTimestamp val createdAt: Date? = null
 ) {
     fun toDomain(): Mess = Mess(
@@ -22,6 +24,8 @@ data class MessDocument(
         month = month,
         year = year,
         memberIds = memberIds,
+        fixedMealCount = fixedMealCount,
+        isSettled = isSettled,
         createdAt = createdAt?.time ?: System.currentTimeMillis()
     )
 
@@ -33,7 +37,9 @@ data class MessDocument(
             managerId = mess.managerId,
             month = mess.month,
             year = mess.year,
-            memberIds = mess.memberIds
+            memberIds = mess.memberIds,
+            fixedMealCount = mess.fixedMealCount,
+            isSettled = mess.isSettled
         )
     }
 }

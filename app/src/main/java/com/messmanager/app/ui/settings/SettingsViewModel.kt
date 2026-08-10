@@ -110,6 +110,30 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun updateFixedMealCount(count: Double) {
+        val mess = _uiState.value.activeMess ?: return
+        viewModelScope.launch {
+            val result = messRepository.updateFixedMealCount(mess.id, count)
+            result.onSuccess {
+                _uiState.value = _uiState.value.copy(successMessage = "Fixed meal count updated.")
+            }.onFailure { e ->
+                _uiState.value = _uiState.value.copy(error = e.localizedMessage ?: "Failed to update fixed meal count")
+            }
+        }
+    }
+
+    fun confirmSettlement() {
+        val mess = _uiState.value.activeMess ?: return
+        viewModelScope.launch {
+            val result = messRepository.confirmSettlement(mess.id)
+            result.onSuccess {
+                _uiState.value = _uiState.value.copy(successMessage = "Settlement confirmed. Mess activities closed.")
+            }.onFailure { e ->
+                _uiState.value = _uiState.value.copy(error = e.localizedMessage ?: "Failed to confirm settlement")
+            }
+        }
+    }
+
     fun signOut() {
         authRepository.signOut()
     }
