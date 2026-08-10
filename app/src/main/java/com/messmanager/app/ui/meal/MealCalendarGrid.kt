@@ -132,7 +132,7 @@ fun MealCalendarGrid(
                         val currentCount = mealDoc?.count ?: 0.0
 
                         val cellBg = if (currentCount > 0) DarkPrimaryGlow else DarkSurfaceHigh
-                        val cellTextColor = if (currentCount > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceDim
+                        val cellTextColor = if (currentCount > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
 
                         Box(
                             modifier = Modifier

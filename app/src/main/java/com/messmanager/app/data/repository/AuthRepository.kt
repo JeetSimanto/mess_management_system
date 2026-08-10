@@ -96,6 +96,19 @@ class AuthRepository @Inject constructor(
         }
     }
 
+    suspend fun updateFcmToken(token: String): Result<Unit> {
+        val uid = currentUserId ?: return Result.failure(Exception("User not authenticated"))
+        return try {
+            firestore.collection(Constants.COLLECTION_USERS)
+                .document(uid)
+                .update("fcmToken", token)
+                .await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     fun signOut() {
         auth.signOut()
     }

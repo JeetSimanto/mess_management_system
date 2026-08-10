@@ -163,7 +163,7 @@ fun GroceryScreen(
                                     Text(
                                         text = grocery.note,
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceDim
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
