@@ -1,5 +1,8 @@
 package com.messmanager.app.ui.dashboard.components
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -54,7 +57,11 @@ fun ManagerDashboardView(
     settlement: MessSettlement,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .animateContentSize(animationSpec = tween(250, easing = FastOutSlowInEasing))
+    ) {
         // Hero Total Expense Card
         Box(
             modifier = Modifier
@@ -179,6 +186,7 @@ fun ManagerDashboardView(
                 .clip(RoundedCornerShape(RadiusLg))
                 .background(DarkSurface)
                 .padding(16.dp)
+                .animateContentSize(animationSpec = tween(250, easing = FastOutSlowInEasing))
         ) {
             settlement.memberSettlements.forEachIndexed { index, memberSettlement ->
                 MemberSettlementRow(memberSettlement, index)
