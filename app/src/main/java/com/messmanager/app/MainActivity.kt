@@ -10,12 +10,12 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
@@ -28,7 +28,6 @@ import com.messmanager.app.ui.theme.MessManagementTheme
 import com.messmanager.app.ui.welcome.AuthViewModel
 import com.messmanager.app.util.NotificationHelper
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -68,9 +67,9 @@ class MainActivity : ComponentActivity() {
                 ) {
                     var updateInfoState by remember { mutableStateOf<UpdateInfo?>(null) }
 
-                    lifecycleScope.launch {
+                    LaunchedEffect(Unit) {
                         val info = updateRepository.checkForUpdates()
-                        if (info.hasUpdate) {
+                        if (info.hasUpdate && !updateRepository.isVersionDismissed(this@MainActivity, info.latestVersion)) {
                             updateInfoState = info
                         }
                     }
@@ -83,7 +82,10 @@ class MainActivity : ComponentActivity() {
                     updateInfoState?.let { info ->
                         UpdateDialog(
                             updateInfo = info,
-                            onDismiss = { updateInfoState = null }
+                            onDismiss = {
+                                updateRepository.dismissVersion(this@MainActivity, info.latestVersion)
+                                updateInfoState = null
+                            }
                         )
                     }
                 }

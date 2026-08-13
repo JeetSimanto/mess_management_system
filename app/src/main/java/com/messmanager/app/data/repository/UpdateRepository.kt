@@ -1,5 +1,6 @@
 package com.messmanager.app.data.repository
 
+import android.content.Context
 import com.messmanager.app.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -31,7 +32,8 @@ class UpdateRepository @Inject constructor() {
             if (connection.responseCode == 200) {
                 val responseText = connection.inputStream.bufferedReader().use { it.readText() }
                 val json = JSONObject(responseText)
-                val tagName = json.optString("tag_name", "").removePrefix("v")
+                val rawTag = json.optString("tag_name", "").trim()
+                val tagName = rawTag.removePrefix("v").trim()
                 val releaseNotes = json.optString("body", "Bug fixes and performance improvements.")
                 
                 val assets = json.optJSONArray("assets")
@@ -64,10 +66,29 @@ class UpdateRepository @Inject constructor() {
         }
     }
 
+    fun isVersionDismissed(context: Context, version: String): Boolean {
+        if (version.isBlank()) return false
+        val prefs = context.getSharedPreferences("app_updates_pref", Context.MODE_PRIVATE)
+        val dismissedVersion = prefs.getString("dismissed_version", null)
+        return dismissedVersion == version
+    }
+
+    fun dismissVersion(context: Context, version: String) {
+        if (version.isBlank()) return
+        val prefs = context.getSharedPreferences("app_updates_pref", Context.MODE_PRIVATE)
+        prefs.edit().putString("dismissed_version", version).apply()
+    }
+
     private fun isVersionNewer(latest: String, current: String): Boolean {
-        if (latest.isEmpty()) return false
-        val latestParts = latest.split(".").mapNotNull { it.toIntOrNull() }
-        val currentParts = current.split(".").mapNotNull { it.toIntOrNull() }
+        if (latest.isBlank()) return false
+        
+        val cleanLatest = latest.trim().removePrefix("v").split("-")[0]
+        val cleanCurrent = current.trim().removePrefix("v").split("-")[0]
+
+        val latestParts = cleanLatest.split(".").mapNotNull { it.toIntOrNull() }
+        val currentParts = cleanCurrent.split(".").mapNotNull { it.toIntOrNull() }
+
+        if (latestParts.isEmpty() || currentParts.isEmpty()) return false
 
         for (i in 0 until maxOf(latestParts.size, currentParts.size)) {
             val l = latestParts.getOrElse(i) { 0 }
