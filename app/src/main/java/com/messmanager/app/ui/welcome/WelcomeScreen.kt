@@ -4,12 +4,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -30,8 +32,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.messmanager.app.ui.theme.DarkPrimary
 import com.messmanager.app.ui.theme.DarkPrimaryGlow
+import com.messmanager.app.ui.theme.DarkSurfaceHigh
 import com.messmanager.app.ui.theme.RadiusLg
+import com.messmanager.app.ui.theme.RadiusSm
 
 @Composable
 fun WelcomeScreen(
@@ -64,7 +69,7 @@ fun WelcomeScreen(
                 Icon(
                     imageVector = Icons.Default.Home,
                     contentDescription = "Mess Manager Logo",
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = DarkPrimary,
                     modifier = Modifier.size(52.dp)
                 )
             }
@@ -88,10 +93,24 @@ fun WelcomeScreen(
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Feature Pills Row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                FeatureChip("Meal Tracker")
+                Spacer(modifier = Modifier.width(8.dp))
+                FeatureChip("Equal Split")
+                Spacer(modifier = Modifier.width(8.dp))
+                FeatureChip("Borrow Requests")
+            }
+
             Spacer(modifier = Modifier.height(48.dp))
 
             if (uiState.isLoading) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                CircularProgressIndicator(color = DarkPrimary)
             } else if (uiState.user == null) {
                 // Google Sign In Button
                 Button(
@@ -101,7 +120,7 @@ fun WelcomeScreen(
                         .height(52.dp),
                     shape = RoundedCornerShape(RadiusLg),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
+                        containerColor = DarkPrimary,
                         contentColor = MaterialTheme.colorScheme.background
                     )
                 ) {
@@ -114,9 +133,9 @@ fun WelcomeScreen(
             } else {
                 // User is signed in -> show Create / Join options
                 Text(
-                    text = "Welcome, ${uiState.user.displayName}!",
+                    text = "Welcome back, ${uiState.user.displayName}!",
                     style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = DarkPrimary,
                     fontWeight = FontWeight.SemiBold
                 )
 
@@ -129,7 +148,7 @@ fun WelcomeScreen(
                         .height(52.dp),
                     shape = RoundedCornerShape(RadiusLg),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
+                        containerColor = DarkPrimary,
                         contentColor = MaterialTheme.colorScheme.background
                     )
                 ) {
@@ -154,13 +173,13 @@ fun WelcomeScreen(
                     Icon(
                         imageVector = Icons.Default.GroupAdd,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = DarkPrimary
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                     Text(
                         text = "Join Mess with Invite Code",
                         style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = DarkPrimary,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -176,5 +195,21 @@ fun WelcomeScreen(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun FeatureChip(label: String) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(RadiusSm))
+            .background(DarkSurfaceHigh)
+            .padding(horizontal = 10.dp, vertical = 6.dp)
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }

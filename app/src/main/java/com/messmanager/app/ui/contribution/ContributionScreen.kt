@@ -11,15 +11,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -38,9 +41,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.messmanager.app.domain.model.Contribution
+import com.messmanager.app.ui.theme.AvatarColors
 import com.messmanager.app.ui.theme.CurrencyHeroStyle
+import com.messmanager.app.ui.theme.DarkPrimary
 import com.messmanager.app.ui.theme.DarkPrimaryGlow
+import com.messmanager.app.ui.theme.DarkSecondary
 import com.messmanager.app.ui.theme.DarkSurface
+import com.messmanager.app.ui.theme.DarkSurfaceHigh
 import com.messmanager.app.ui.theme.RadiusLg
 import com.messmanager.app.util.CurrencyFormatter
 import com.messmanager.app.util.DateUtils
@@ -72,7 +79,7 @@ fun ContributionScreen(
                         selectedContributionForEdit = null
                         showSheet = true
                     },
-                    containerColor = MaterialTheme.colorScheme.secondary,
+                    containerColor = DarkSecondary,
                     contentColor = MaterialTheme.colorScheme.background
                 ) {
                     Icon(Icons.Default.Add, contentDescription = "Add Deposit")
@@ -96,12 +103,24 @@ fun ContributionScreen(
                     .padding(20.dp)
             ) {
                 Column {
-                    Text(
-                        text = "TOTAL MEMBER DEPOSITS",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "TOTAL MEMBER DEPOSITS",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = DarkPrimary,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Icon(
+                            imageVector = Icons.Default.AccountBalanceWallet,
+                            contentDescription = null,
+                            tint = DarkPrimary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(4.dp))
 
@@ -110,6 +129,8 @@ fun ContributionScreen(
                         style = CurrencyHeroStyle,
                         color = MaterialTheme.colorScheme.onBackground
                     )
+
+                    Spacer(modifier = Modifier.height(4.dp))
 
                     Text(
                         text = "Total cash collected by the Mess Manager",
@@ -135,37 +156,63 @@ fun ContributionScreen(
                         .clip(RoundedCornerShape(RadiusLg))
                         .background(DarkSurface)
                         .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(uiState.contributions, key = { it.id }) { contribution ->
+                    itemsIndexed(uiState.contributions, key = { _, item -> item.id }) { index, contribution ->
+                        val avatarColor = AvatarColors[index % AvatarColors.size]
+
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .clip(RoundedCornerShape(RadiusLg))
+                                .background(DarkSurfaceHigh)
                                 .clickable(enabled = uiState.isManager) {
                                     selectedContributionForEdit = contribution
                                     showSheet = true
-                                },
+                                }
+                                .padding(12.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = contribution.memberName,
-                                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Text(
-                                    text = "${contribution.purpose} · ${DateUtils.formatDisplay(contribution.date)}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                            Row(
+                                modifier = Modifier.weight(1f),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(CircleShape)
+                                        .background(avatarColor.copy(alpha = 0.2f)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = contribution.memberName.take(1).uppercase(),
+                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                        color = avatarColor
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.width(12.dp))
+
+                                Column {
+                                    Text(
+                                        text = contribution.memberName,
+                                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = "${contribution.purpose} · ${DateUtils.formatDisplay(contribution.date)}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                             }
 
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
                                     text = CurrencyFormatter.formatPaisa(contribution.amountPaisa),
                                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                    color = MaterialTheme.colorScheme.primary
+                                    color = DarkPrimary
                                 )
 
                                 if (uiState.isManager) {
@@ -179,7 +226,6 @@ fun ContributionScreen(
                                 }
                             }
                         }
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     }
                 }
             }

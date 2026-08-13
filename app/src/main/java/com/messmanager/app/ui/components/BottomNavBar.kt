@@ -4,23 +4,34 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.ReceiptLong
+import androidx.compose.material.icons.filled.Restaurant
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.messmanager.app.ui.navigation.Screen
 import com.messmanager.app.ui.theme.DarkPrimaryGlow
-import com.messmanager.app.ui.theme.RadiusFull
+import com.messmanager.app.ui.theme.DarkSurface
+import com.messmanager.app.ui.theme.RadiusLg
 
 @Composable
 fun BottomNavBar(
@@ -28,49 +39,62 @@ fun BottomNavBar(
     onNavigate: (Screen) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val items = listOf(
-        Screen.Dashboard,
-        Screen.Grocery,
-        Screen.Utility,
-        Screen.Meals,
-        Screen.Contributions
+    val navItems = listOf(
+        NavItem(Screen.Dashboard, "Home", Icons.Default.Home),
+        NavItem(Screen.Grocery, "Grocery", Icons.Default.ShoppingCart),
+        NavItem(Screen.Utility, "Utility", Icons.Default.ReceiptLong),
+        NavItem(Screen.Meals, "Meals", Icons.Default.Restaurant),
+        NavItem(Screen.Contributions, "Deposits", Icons.Default.AccountBalanceWallet)
     )
 
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(56.dp)
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(horizontal = 8.dp, vertical = 6.dp),
+            .height(64.dp)
+            .background(DarkSurface)
+            .padding(horizontal = 4.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        items.forEach { screen ->
-            val isSelected = currentRoute == screen.route
+        navItems.forEach { item ->
+            val isSelected = currentRoute == item.screen.route
 
             Box(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(RadiusFull))
-                    .background(if (isSelected) DarkPrimaryGlow else MaterialTheme.colorScheme.surface)
-                    .clickable { onNavigate(screen) }
-                    .padding(horizontal = 14.dp, vertical = 8.dp),
+                    .clip(RoundedCornerShape(RadiusLg))
+                    .background(if (isSelected) DarkPrimaryGlow else DarkSurface)
+                    .clickable { onNavigate(item.screen) }
+                    .padding(horizontal = 12.dp, vertical = 6.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = screen.title,
-                    style = if (isSelected) {
-                        MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = item.icon,
+                        contentDescription = item.label,
+                        tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(2.dp))
+
+                    Text(
+                        text = item.label,
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                    } else {
-                        MaterialTheme.typography.labelMedium.copy(
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                )
+                    )
+                }
             }
         }
     }
 }
+
+private data class NavItem(
+    val screen: Screen,
+    val label: String,
+    val icon: ImageVector
+)

@@ -11,12 +11,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -38,9 +42,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.messmanager.app.domain.model.Grocery
+import com.messmanager.app.ui.theme.AvatarColors
 import com.messmanager.app.ui.theme.CurrencyHeroStyle
+import com.messmanager.app.ui.theme.DarkPrimary
 import com.messmanager.app.ui.theme.DarkPrimaryGlow
+import com.messmanager.app.ui.theme.DarkSecondary
 import com.messmanager.app.ui.theme.DarkSurface
+import com.messmanager.app.ui.theme.DarkSurfaceHigh
 import com.messmanager.app.ui.theme.RadiusLg
 import com.messmanager.app.util.CurrencyFormatter
 import com.messmanager.app.util.DateUtils
@@ -72,7 +80,7 @@ fun GroceryScreen(
                         selectedGroceryForEdit = null
                         showSheet = true
                     },
-                    containerColor = MaterialTheme.colorScheme.secondary,
+                    containerColor = DarkSecondary,
                     contentColor = MaterialTheme.colorScheme.background
                 ) {
                     Icon(Icons.Default.Add, contentDescription = "Add Grocery")
@@ -96,12 +104,24 @@ fun GroceryScreen(
                     .padding(20.dp)
             ) {
                 Column {
-                    Text(
-                        text = "TOTAL GROCERY EXPENSE",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "TOTAL GROCERY EXPENSE",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = DarkPrimary,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Icon(
+                            imageVector = Icons.Default.ShoppingCart,
+                            contentDescription = null,
+                            tint = DarkPrimary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(4.dp))
 
@@ -110,6 +130,8 @@ fun GroceryScreen(
                         style = CurrencyHeroStyle,
                         color = MaterialTheme.colorScheme.onBackground
                     )
+
+                    Spacer(modifier = Modifier.height(4.dp))
 
                     Text(
                         text = "${uiState.groceries.size} entries recorded this month",
@@ -126,7 +148,7 @@ fun GroceryScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("No grocery entries yet.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("No grocery entries recorded yet.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             } else {
                 LazyColumn(
@@ -135,36 +157,63 @@ fun GroceryScreen(
                         .clip(RoundedCornerShape(RadiusLg))
                         .background(DarkSurface)
                         .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(uiState.groceries, key = { it.id }) { grocery ->
+                    itemsIndexed(uiState.groceries, key = { _, item -> item.id }) { index, grocery ->
+                        val buyerColor = AvatarColors[index % AvatarColors.size]
+
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .clip(RoundedCornerShape(RadiusLg))
+                                .background(DarkSurfaceHigh)
                                 .clickable(enabled = uiState.isManager) {
                                     selectedGroceryForEdit = grocery
                                     showSheet = true
-                                },
+                                }
+                                .padding(12.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = grocery.itemName,
-                                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Text(
-                                    text = "${grocery.quantity} ${grocery.unit} · Bought by ${grocery.buyerName} (${DateUtils.formatDisplay(grocery.date)})",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                if (grocery.note.isNotEmpty()) {
+                            Row(
+                                modifier = Modifier.weight(1f),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // Buyer Avatar Initial Circle
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(CircleShape)
+                                        .background(buyerColor.copy(alpha = 0.2f)),
+                                    contentAlignment = Alignment.Center
+                                ) {
                                     Text(
-                                        text = grocery.note,
+                                        text = grocery.buyerName.take(1).uppercase(),
+                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                        color = buyerColor
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.width(12.dp))
+
+                                Column {
+                                    Text(
+                                        text = grocery.itemName,
+                                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = "${grocery.quantity} ${grocery.unit} · ${grocery.buyerName} (${DateUtils.formatDisplay(grocery.date)})",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
+                                    if (grocery.note.isNotEmpty()) {
+                                        Text(
+                                            text = grocery.note,
+                                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                                            color = DarkSecondary
+                                        )
+                                    }
                                 }
                             }
 
@@ -172,7 +221,7 @@ fun GroceryScreen(
                                 Text(
                                     text = CurrencyFormatter.formatPaisa(grocery.costPaisa),
                                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                    color = MaterialTheme.colorScheme.primary
+                                    color = DarkPrimary
                                 )
 
                                 if (uiState.isManager) {
@@ -186,7 +235,6 @@ fun GroceryScreen(
                                 }
                             }
                         }
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     }
                 }
             }

@@ -10,18 +10,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Handshake
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -41,10 +44,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.messmanager.app.domain.model.BorrowRequest
 import com.messmanager.app.domain.model.BorrowStatus
+import com.messmanager.app.ui.theme.DarkPrimary
 import com.messmanager.app.ui.theme.DarkPrimaryGlow
+import com.messmanager.app.ui.theme.DarkSecondary
 import com.messmanager.app.ui.theme.DarkSurface
 import com.messmanager.app.ui.theme.DarkSurfaceHigh
+import com.messmanager.app.ui.theme.NegativeDark
+import com.messmanager.app.ui.theme.NegativeDarkBg
 import com.messmanager.app.ui.theme.PositiveDark
+import com.messmanager.app.ui.theme.PositiveDarkBg
 import com.messmanager.app.ui.theme.RadiusLg
 import com.messmanager.app.ui.theme.RadiusSm
 import com.messmanager.app.util.DateUtils
@@ -72,7 +80,7 @@ fun BorrowScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showRequestSheet = true },
-                containerColor = MaterialTheme.colorScheme.secondary,
+                containerColor = DarkSecondary,
                 contentColor = MaterialTheme.colorScheme.background
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Request Borrow")
@@ -86,7 +94,7 @@ fun BorrowScreen(
                 .padding(padding)
                 .padding(16.dp)
         ) {
-            // Notice Card as requested by user
+            // Notice Card
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -95,26 +103,34 @@ fun BorrowScreen(
                     .padding(16.dp)
             ) {
                 Row(verticalAlignment = Alignment.Top) {
-                    Icon(
-                        Icons.Default.Info,
-                        contentDescription = "Notice",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(top = 2.dp)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(DarkPrimary.copy(alpha = 0.2f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Info,
+                            contentDescription = "Notice",
+                            tint = DarkPrimary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
 
-                    Spacer(modifier = Modifier.padding(horizontal = 6.dp))
+                    Spacer(modifier = Modifier.width(12.dp))
 
                     Column {
                         Text(
                             text = "Item Return Policy",
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.primary
+                            color = DarkPrimary
                         )
 
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(2.dp))
 
                         Text(
-                            text = "The manager will not accept any money, what you have borrowed needs to be returned in the given time period.",
+                            text = "The manager will not accept any cash for physical items. Borrowed items must be returned physically in the agreed timeframe.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onBackground
                         )
@@ -138,7 +154,7 @@ fun BorrowScreen(
                         .clip(RoundedCornerShape(RadiusLg))
                         .background(DarkSurface)
                         .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(uiState.borrowRequests, key = { it.id }) { borrow ->
                         BorrowItemRow(
@@ -148,7 +164,6 @@ fun BorrowScreen(
                             onRejectClick = { viewModel.resolveBorrow(borrow.id, accept = false) },
                             onMarkReturned = { viewModel.markReturned(borrow.id) }
                         )
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     }
                 }
             }
@@ -188,40 +203,67 @@ private fun BorrowItemRow(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .clip(RoundedCornerShape(RadiusLg))
+            .background(DarkSurfaceHigh)
+            .padding(14.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "${borrow.itemName} (${borrow.quantity})",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = "Borrowed by ${borrow.requesterName} on ${DateUtils.formatDisplay(borrow.date)}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                if (borrow.dueDate.isNotEmpty() && borrow.status == BorrowStatus.ACCEPTED) {
-                    Text(
-                        text = "Due Date: ${DateUtils.formatDisplay(borrow.dueDate)} (Daily Reminder Active)",
-                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.secondary
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(38.dp)
+                        .clip(CircleShape)
+                        .background(DarkSecondary.copy(alpha = 0.2f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Handshake,
+                        contentDescription = null,
+                        tint = DarkSecondary,
+                        modifier = Modifier.size(20.dp)
                     )
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Column {
+                    Text(
+                        text = "${borrow.itemName} (${borrow.quantity})",
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = "Borrowed by ${borrow.requesterName} on ${DateUtils.formatDisplay(borrow.date)}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    if (borrow.dueDate.isNotEmpty() && borrow.status == BorrowStatus.ACCEPTED) {
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "Due Date: ${DateUtils.formatDisplay(borrow.dueDate)} (Daily Reminder Active)",
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = DarkSecondary
+                        )
+                    }
                 }
             }
 
+            Spacer(modifier = Modifier.width(8.dp))
+
             // Status Badge
             val (statusText, statusBg, statusColor) = when (borrow.status) {
-                BorrowStatus.PENDING -> Triple("PENDING", DarkSurfaceHigh, MaterialTheme.colorScheme.secondary)
-                BorrowStatus.ACCEPTED -> Triple("ACCEPTED", DarkPrimaryGlow, MaterialTheme.colorScheme.primary)
-                BorrowStatus.REJECTED -> Triple("REJECTED", MaterialTheme.colorScheme.errorContainer, MaterialTheme.colorScheme.error)
-                BorrowStatus.RETURNED -> Triple("RETURNED", DarkSurfaceHigh, PositiveDark)
+                BorrowStatus.PENDING -> Triple("PENDING", DarkSurfaceHigh, DarkSecondary)
+                BorrowStatus.ACCEPTED -> Triple("ACCEPTED", DarkPrimaryGlow, DarkPrimary)
+                BorrowStatus.REJECTED -> Triple("REJECTED", NegativeDarkBg, NegativeDark)
+                BorrowStatus.RETURNED -> Triple("RETURNED", PositiveDarkBg, PositiveDark)
             }
 
             Box(
@@ -240,10 +282,9 @@ private fun BorrowItemRow(
 
         // Manager Actions Row
         if (isManager) {
-            Spacer(modifier = Modifier.height(8.dp))
-
             when (borrow.status) {
                 BorrowStatus.PENDING -> {
+                    Spacer(modifier = Modifier.height(10.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End
@@ -252,20 +293,21 @@ private fun BorrowItemRow(
                             Text("Reject", color = MaterialTheme.colorScheme.error)
                         }
 
-                        Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
 
                         Button(
                             onClick = onAcceptClick,
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
+                                containerColor = DarkPrimary,
                                 contentColor = MaterialTheme.colorScheme.background
                             )
                         ) {
-                            Text("Accept", fontWeight = FontWeight.Bold)
+                            Text("Accept & Set Due", fontWeight = FontWeight.Bold)
                         }
                     }
                 }
                 BorrowStatus.ACCEPTED -> {
+                    Spacer(modifier = Modifier.height(10.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End
@@ -277,8 +319,8 @@ private fun BorrowItemRow(
                                 contentColor = MaterialTheme.colorScheme.background
                             )
                         ) {
-                            Icon(Icons.Default.CheckCircle, contentDescription = null)
-                            Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                            Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
                             Text("Mark as Returned", fontWeight = FontWeight.Bold)
                         }
                     }

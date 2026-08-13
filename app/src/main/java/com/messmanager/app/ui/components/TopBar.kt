@@ -1,8 +1,14 @@
 package com.messmanager.app.ui.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Handshake
 import androidx.compose.material.icons.filled.Settings
@@ -16,8 +22,12 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.messmanager.app.ui.theme.DarkPrimary
+import com.messmanager.app.ui.theme.DarkPrimaryGlow
+import com.messmanager.app.ui.theme.DarkSecondary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,34 +46,66 @@ fun TopBar(
         ),
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = messName.ifEmpty { "Mess Manager" },
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-                )
-                if (monthYearText.isNotEmpty()) {
-                    Spacer(modifier = Modifier.width(8.dp))
+                // Mess Avatar Circle
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(DarkPrimaryGlow),
+                    contentAlignment = Alignment.Center
+                ) {
                     Text(
-                        text = "· $monthYearText",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = messName.take(1).uppercase().ifEmpty { "M" },
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = DarkPrimary
                     )
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Column {
+                    Text(
+                        text = messName.ifEmpty { "Mess Manager" },
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                    )
+                    if (monthYearText.isNotEmpty()) {
+                        Text(
+                            text = monthYearText,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
         },
         actions = {
-            IconButton(onClick = onOpenBorrows) {
-                Icon(
-                    imageVector = Icons.Default.Handshake,
-                    contentDescription = "Borrow Requests",
-                    tint = MaterialTheme.colorScheme.secondary
-                )
+            Box(
+                modifier = Modifier
+                    .padding(end = 4.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            ) {
+                IconButton(onClick = onOpenBorrows) {
+                    Icon(
+                        imageVector = Icons.Default.Handshake,
+                        contentDescription = "Borrow Requests",
+                        tint = DarkSecondary
+                    )
+                }
             }
-            IconButton(onClick = onOpenSettings) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = "Settings",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+
+            Box(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            ) {
+                IconButton(onClick = onOpenSettings) {
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = "Settings",
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
             }
         }
     )

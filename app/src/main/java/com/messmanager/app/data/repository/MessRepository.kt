@@ -140,28 +140,4 @@ class MessRepository @Inject constructor(
     suspend fun leaveMess(messId: String, userId: String): Result<Unit> {
         return removeMember(messId, userId)
     }
-
-    suspend fun updateFixedMealCount(messId: String, count: Double): Result<Unit> {
-        return try {
-            firestore.collection(Constants.COLLECTION_MESSES)
-                .document(messId)
-                .update("fixedMealCount", count)
-                .await()
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    suspend fun confirmSettlement(messId: String): Result<Unit> {
-        return try {
-            firestore.collection(Constants.COLLECTION_MESSES)
-                .document(messId)
-                .update("isSettled", true)
-                .await()
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
 }

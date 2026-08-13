@@ -20,27 +20,16 @@ object SettlementCalculator {
         groceries: List<Grocery>,
         utilities: List<Utility>,
         meals: List<Meal>,
-        contributions: List<Contribution>,
-        fixedMealCount: Double = 0.0
+        contributions: List<Contribution>
     ): MessSettlement {
         val totalGroceryPaisa = groceries.sumOf { it.costPaisa }
         val totalUtilityPaisa = utilities.sumOf { it.costPaisa }
         val totalExpensePaisa = totalGroceryPaisa + totalUtilityPaisa
         val totalContributionPaisa = contributions.sumOf { it.amountPaisa }
 
-        val rawTotalMeals = meals.sumOf { it.count }
-
-        val memberMealMap = members.associate { member ->
-            val actualMeals = meals.filter { it.memberUid == member.uid }.sumOf { it.count }
-            val effectiveMeals = if (fixedMealCount > 0.0 && actualMeals < fixedMealCount) fixedMealCount else actualMeals
-            member.uid to Pair(actualMeals, effectiveMeals)
-        }
-
-        val totalEffectiveMeals = memberMealMap.values.sumOf { it.second }
-        val totalMealsForRate = if (totalEffectiveMeals > 0.0) totalEffectiveMeals else rawTotalMeals
-
-        val mealRatePaisaPerMeal = if (totalMealsForRate > 0.0) {
-            totalGroceryPaisa.toDouble() / totalMealsForRate
+        val totalMeals = meals.sumOf { it.count }
+        val mealRatePaisaPerMeal = if (totalMeals > 0.0) {
+            totalGroceryPaisa.toDouble() / totalMeals
         } else {
             0.0
         }
@@ -53,9 +42,8 @@ object SettlementCalculator {
         }
 
         val memberSettlements = members.map { member ->
-            val (actualMeals, effectiveMeals) = memberMealMap[member.uid] ?: Pair(0.0, 0.0)
-            val isFixedApplied = fixedMealCount > 0.0 && actualMeals < fixedMealCount
-            val groceryCostPaisa = (effectiveMeals * mealRatePaisaPerMeal).roundToLong()
+            val memberMeals = meals.filter { it.memberUid == member.uid }.sumOf { it.count }
+            val groceryCostPaisa = (memberMeals * mealRatePaisaPerMeal).roundToLong()
             val utilitySharePaisa = utilitySharePerMemberPaisa
             val totalCostPaisa = groceryCostPaisa + utilitySharePaisa
 
@@ -74,9 +62,7 @@ object SettlementCalculator {
             MemberSettlement(
                 memberUid = member.uid,
                 memberName = member.displayName,
-                totalMeals = effectiveMeals,
-                rawMeals = actualMeals,
-                isFixedMealApplied = isFixedApplied,
+                totalMeals = memberMeals,
                 groceryCostPaisa = groceryCostPaisa,
                 utilitySharePaisa = utilitySharePaisa,
                 totalCostPaisa = totalCostPaisa,
@@ -97,7 +83,7 @@ object SettlementCalculator {
             totalExpensePaisa = totalExpensePaisa,
             totalContributionPaisa = totalContributionPaisa,
             moneyRemainsPaisa = moneyRemainsPaisa,
-            totalMeals = totalEffectiveMeals,
+            totalMeals = totalMeals,
             mealRatePaisaPerMeal = mealRatePaisaPerMeal,
             memberSettlements = memberSettlements
         )
