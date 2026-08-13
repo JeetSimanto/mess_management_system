@@ -8,9 +8,9 @@
 | Field | Value |
 |-------|-------|
 | **Current Phase** | Multi-Mess & Production Release |
-| **App Version** | `1.0.8` (Version Code 9) |
-| **Status** | 🟢 Production Ready — Custom App Icon (White Border Removed) & Quick Check Update |
-| **Last Updated** | 2026-08-13T09:42:00+06:00 |
+| **App Version** | `1.0.9` (Version Code 10) |
+| **Status** | 🟢 Production Ready — Transposed Meal Grid (Member Columns, Date Rows) & Custom Icon |
+| **Last Updated** | 2026-08-13T09:48:00+06:00 |
 | **Started** | 2026-08-02 |
 
 ---

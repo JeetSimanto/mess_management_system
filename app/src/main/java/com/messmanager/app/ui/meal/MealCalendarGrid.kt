@@ -3,6 +3,7 @@ package com.messmanager.app.ui.meal
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.messmanager.app.domain.model.Meal
@@ -67,44 +69,69 @@ fun MealCalendarGrid(
             .background(DarkSurface)
             .padding(14.dp)
     ) {
+        // Top Header Row: DATE column header + Member columns (Horizontal Scroll)
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Member Name Header
+            // DATE Header Box
             Box(
                 modifier = Modifier
-                    .width(110.dp)
-                    .height(44.dp),
-                contentAlignment = Alignment.CenterStart
+                    .width(54.dp)
+                    .height(48.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "MEMBER",
+                    text = "DATE",
                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
-            // Dates Header Row (Scrollable)
+            Spacer(modifier = Modifier.width(4.dp))
+
+            // Member Name Column Headers (Scrollable)
             Row(
                 modifier = Modifier
                     .weight(1f)
                     .horizontalScroll(horizontalScrollState)
             ) {
-                dates.forEachIndexed { index, _ ->
-                    Box(
+                members.forEachIndexed { index, member ->
+                    val avatarColor = AvatarColors[index % AvatarColors.size]
+
+                    Row(
                         modifier = Modifier
-                            .width(44.dp)
-                            .height(44.dp)
+                            .width(84.dp)
+                            .height(48.dp)
                             .padding(2.dp)
                             .clip(RoundedCornerShape(RadiusSm))
-                            .background(DarkSurfaceHigh),
-                        contentAlignment = Alignment.Center
+                            .background(DarkSurfaceHigh)
+                            .padding(horizontal = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
                     ) {
+                        Box(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .clip(CircleShape)
+                                .background(avatarColor.copy(alpha = 0.2f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = member.displayName.take(1).uppercase(),
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                color = avatarColor
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(6.dp))
+
                         Text(
-                            text = "${index + 1}",
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                            color = DarkPrimary
+                            text = member.displayName,
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
@@ -113,53 +140,39 @@ fun MealCalendarGrid(
 
         Spacer(modifier = Modifier.height(6.dp))
 
-        members.forEachIndexed { index, member ->
-            val avatarColor = AvatarColors[index % AvatarColors.size]
-
+        // Body Rows: One row per Date (1..daysInMonth)
+        dates.forEachIndexed { dayIndex, dateIso ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 4.dp),
+                    .padding(vertical = 2.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Member Name Column with Initials Avatar
-                Row(
+                // Date Number Label Column
+                Box(
                     modifier = Modifier
-                        .width(110.dp)
-                        .height(44.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .width(54.dp)
+                        .height(40.dp)
+                        .clip(RoundedCornerShape(RadiusSm))
+                        .background(DarkSurfaceHigh),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(28.dp)
-                            .clip(CircleShape)
-                            .background(avatarColor.copy(alpha = 0.2f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = member.displayName.take(1).uppercase(),
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                            color = avatarColor
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
                     Text(
-                        text = member.displayName,
-                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1
+                        text = "${dayIndex + 1}",
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                        color = DarkPrimary
                     )
                 }
 
-                // Member Meal Cells Row (Scrollable)
+                Spacer(modifier = Modifier.width(4.dp))
+
+                // Member Meal Cells Row (Scrollable, synced with header)
                 Row(
                     modifier = Modifier
                         .weight(1f)
                         .horizontalScroll(horizontalScrollState)
                 ) {
-                    dates.forEach { dateIso ->
+                    members.forEach { member ->
                         val mealDoc = meals.find { it.memberUid == member.uid && it.date == dateIso }
                         val currentCount = mealDoc?.count ?: 0.0
 
@@ -169,8 +182,8 @@ fun MealCalendarGrid(
                         Box(
                             modifier = Modifier
                                 .padding(2.dp)
-                                .width(44.dp)
-                                .height(44.dp)
+                                .width(84.dp)
+                                .height(40.dp)
                                 .clip(RoundedCornerShape(RadiusSm))
                                 .background(cellBg)
                                 .clickable(enabled = isManager) {
