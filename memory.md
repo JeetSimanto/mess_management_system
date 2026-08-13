@@ -7,9 +7,10 @@
 
 | Field | Value |
 |-------|-------|
-| **Current Phase** | Phase 0 — Initialization & Planning |
-| **Status** | 🟢 All Questions Answered — Ready to code on user's command |
-| **Last Updated** | 2026-08-02T01:52:00+06:00 |
+| **Current Phase** | Production Release & UI Polish |
+| **App Version** | `1.0.2` (Version Code 3) |
+| **Status** | 🟢 Production Ready — Google Auth Verified, Release Pipeline Configured, UI Polish Complete |
+| **Last Updated** | 2026-08-13T08:31:00+06:00 |
 | **Started** | 2026-08-02 |
 
 ---
@@ -18,7 +19,7 @@
 
 | # | Decision | User's Answer |
 |---|----------|---------------|
-| 1 | Auth method | **Google Sign-In** (one-tap, persistent) |
+| 1 | Auth method | **Google Sign-In** (one-tap, persistent, production SHA fingerprint configured) |
 | 2 | Cloud backend | **Firebase Firestore** (free tier) |
 | 3 | Max members per mess | **Up to 20** |
 | 4 | Meal count type | **Floating point** (0, 0.5, 1, 1.5, 2, 2.5, 3) |
@@ -30,24 +31,29 @@
 | 10 | Onboarding | Welcome screen → Create Mess / Join Mess |
 | 11 | Invite system | 6-char code, shared from Settings |
 | 12 | Multi-mess | MVP — user can create/join multiple messes |
+| 13 | Design Theme | **Carbon Mint Dark Theme** with solid input fields and customized component styling |
 
 ---
 
 ## Context Tracker
 
-### Created Files
+### Key Code Files & Modules
 
-| File | Version | Description |
-|------|---------|-------------|
-| `project.txt` | v1 (pre-existing) | Raw project specification |
-| `Master_File.md` | v1 (pre-existing) | Blueprint for generating planning files |
-| `PRD.md` | **v3** | + member dashboard visibility rules, bilingual, float meals, editable dropdown |
-| `Architecture.md` | **v3** | Google Sign-In, float mealCount, Firestore model |
-| `rules.md` | **v3** | Float meal validation, Firebase deps |
-| `phases.md` | v2 | Phase 1 = Auth + Onboarding |
-| `design.md` | v1 | UI/UX design system (needs update for member dashboard) |
-| `memory.md` | **v3** | This file — all decisions finalized |
-| `Questions.md` | v2 | All questions now answered |
+| File / Component | Status | Description |
+|------------------|--------|-------------|
+| `app/build.gradle.kts` | Updated | Bumped to `v1.0.2` (versionCode 3) |
+| `.github/workflows/build.yml` | Verified | GitHub Actions automated APK release on tag push |
+| `AppOutlinedTextField.kt` | Created | Centralized solid `DarkSurfaceHigh` styling helper for input forms |
+| `BottomNavBar.kt` | Polished | Active navigation pills, styled vector icons |
+| `TopBar.kt` | Polished | Mess avatar circle, styled title layout, action icon buttons |
+| `ManagerDashboardView.kt` | Polished | Hero cards, member initials avatars, settlement status chips |
+| `MealCalendarGrid.kt` | Polished | Scrollable date headers, initials avatars, count cell glow states |
+| `GroceryScreen.kt` | Polished | Buyer initial avatars, cost badges, category icons |
+| `UtilityScreen.kt` | Polished | Rent, Electricity, Gas, Water, WiFi category icons |
+| `ContributionScreen.kt` | Polished | Deposit list, member initial avatars, purpose badges |
+| `BorrowScreen.kt` | Polished | Physical Return Policy notice card, borrow status tags |
+| `SettingsScreen.kt` | Polished | Mess header, invite code box, member admin controls, sign out |
+| `WelcomeScreen.kt` | Polished | Hero branding glow, feature chips, Google Sign-In button |
 
 ---
 
@@ -55,31 +61,21 @@
 
 ### ADR-001: Kotlin + Jetpack Compose ✅ Confirmed
 ### ADR-002: Firebase Firestore as primary database ✅ Confirmed
-### ADR-003: Google Sign-In (not Anonymous Auth) ✅ Confirmed
-- User chose persistent auth over zero-friction anonymous
+### ADR-003: Google Sign-In (SHA-1 & SHA-256 Registered) ✅ Confirmed
 ### ADR-004: Store currency as integer paisa ✅ Confirmed
 ### ADR-005: MVVM with Hilt DI ✅ Confirmed
 ### ADR-006: StateFlow over LiveData ✅ Confirmed
 ### ADR-007: Role-Based Access — Manager (admin) vs Member (read-only) ✅ Confirmed
 ### ADR-008: Invite Code System ✅ Confirmed
 ### ADR-009: Multi-Mess Support in MVP ✅ Confirmed
-### ADR-010: Floating Point Meal Counts ✅ NEW
-- Meal count supports 0, 0.5, 1, 1.5, 2, 2.5, 3 (step 0.5)
-- Stored as Firestore `number` (double)
-### ADR-011: Dual Meal Tracker View ✅ NEW
-- Calendar grid view (horizontal scroll, all days)
-- Day-by-day view (select date, mark all members)
-- User can toggle between views
-### ADR-012: Member Sees Only Own Data on Dashboard ✅ NEW
-- Members see: own settlement, own meals, own contributions, own costs
-- Members also see: grocery list, utility list, total spend, meal rate (shared info)
-- Members CANNOT see: other members' meals, contributions, or settlements
-### ADR-013: Bilingual — English + Bangla ✅ NEW
-- Language toggle in Settings
-- Uses Android `strings.xml` resource system with `values/` (English) and `values-bn/` (Bangla)
-### ADR-014: Editable Dropdown for Grocery Units ✅ NEW
-- Preset options: kg, poya, pcs, liter, gram
-- User can type custom unit in the same field
+### ADR-010: Floating Point Meal Counts ✅ Confirmed
+### ADR-011: Dual Meal Tracker View ✅ Confirmed
+### ADR-012: Member Sees Only Own Data on Dashboard ✅ Confirmed
+### ADR-013: Carbon Mint Design System ✅ Confirmed
+- Solid container backgrounds (`DarkSurfaceHigh`) to prevent transparent text fields
+- Initials-based avatar circles across member lists and settlement tables
+### ADR-014: UI-UX Pro Max Skill Installed ✅ Confirmed
+- Integrated `/home/lucifer_vtn/.agent/skills/ui-ux-pro-max/` skill database and search tool
 
 ---
 
@@ -88,15 +84,12 @@
 | Timestamp | Action |
 |-----------|--------|
 | 2026-08-02 00:47 | Session started — user requested 7 planning files |
-| 2026-08-02 00:48-00:53 | Created all 7 files (v1) |
-| 2026-08-02 01:20 | User added: access system, roles, onboarding, settings, invite codes |
-| 2026-08-02 01:21-01:25 | Updated all docs to v2 (Firebase, roles, multi-user) |
-| 2026-08-02 01:30 | User asked: what is anonymous auth? — explained |
-| 2026-08-02 01:33 | User asked: does WiFi-only sync need Firebase? — explained cloud vs local |
-| 2026-08-02 01:37 | User asked: Firebase cost at scale? — showed free tier math |
-| 2026-08-02 01:40 | **User confirmed Firebase** |
-| 2026-08-02 01:50 | **User answered ALL remaining questions** (7/7) |
-| 2026-08-02 01:52 | Updated all docs to v3 with final decisions |
-| 2026-08-02 01:52 | **🟢 PLANNING COMPLETE — awaiting "start the code"** |
+| 2026-08-02 01:52 | Planning complete — began implementation |
+| 2026-08-09 17:15 | Fixed Google Sign-In auth credentials and SHA fingerprints |
+| 2026-08-10 18:15 | Resolved input field transparency bug across form sheets |
+| 2026-08-10 18:30 | Bumped app version to `1.0.2` (versionCode 3) |
+| 2026-08-13 02:29 | Completed full Carbon Mint UI polish across all app screens |
+| 2026-08-13 02:30 | Verified `ui-ux-pro-max` skill integration |
+| 2026-08-13 08:31 | **Updated `memory.md` with current release state** |
 
 ---
