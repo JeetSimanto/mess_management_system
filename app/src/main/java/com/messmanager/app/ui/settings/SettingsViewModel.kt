@@ -2,9 +2,12 @@ package com.messmanager.app.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.messmanager.app.BuildConfig
 import com.messmanager.app.data.repository.AuthRepository
 import com.messmanager.app.data.repository.DashboardRepository
 import com.messmanager.app.data.repository.MessRepository
+import com.messmanager.app.data.repository.UpdateInfo
+import com.messmanager.app.data.repository.UpdateRepository
 import com.messmanager.app.domain.model.Member
 import com.messmanager.app.domain.model.Mess
 import com.messmanager.app.domain.model.User
@@ -20,11 +23,13 @@ import javax.inject.Inject
 data class SettingsUiState(
     val isLoading: Boolean = true,
     val isActionLoading: Boolean = false,
+    val isCheckingUpdate: Boolean = false,
     val user: User? = null,
     val userMesses: List<Mess> = emptyList(),
     val activeMess: Mess? = null,
     val isManager: Boolean = false,
     val members: List<Member> = emptyList(),
+    val updateInfo: UpdateInfo? = null,
     val error: String? = null,
     val successMessage: String? = null
 )
@@ -33,7 +38,8 @@ data class SettingsUiState(
 class SettingsViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val messRepository: MessRepository,
-    private val dashboardRepository: DashboardRepository
+    private val dashboardRepository: DashboardRepository,
+    private val updateRepository: UpdateRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
@@ -97,6 +103,26 @@ class SettingsViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun checkForUpdates() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isCheckingUpdate = true, error = null)
+            val info = updateRepository.checkForUpdates()
+            _uiState.value = _uiState.value.copy(
+                isCheckingUpdate = false,
+                updateInfo = if (info.hasUpdate) info else null
+            )
+            if (!info.hasUpdate) {
+                _uiState.value = _uiState.value.copy(
+                    successMessage = "You are on the latest version (v${BuildConfig.VERSION_NAME})!"
+                )
+            }
+        }
+    }
+
+    fun dismissUpdateDialog() {
+        _uiState.value = _uiState.value.copy(updateInfo = null)
     }
 
     fun switchActiveMess(messId: String) {

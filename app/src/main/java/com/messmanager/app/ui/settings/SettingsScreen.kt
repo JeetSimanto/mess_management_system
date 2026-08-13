@@ -23,18 +23,19 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.GroupAdd
 import androidx.compose.material.icons.filled.House
 import androidx.compose.material.icons.filled.PersonRemove
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -53,12 +54,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.messmanager.app.domain.model.Mess
+import com.messmanager.app.BuildConfig
+import com.messmanager.app.ui.components.UpdateDialog
 import com.messmanager.app.ui.components.appTextFieldColors
 import com.messmanager.app.ui.theme.AvatarColors
 import com.messmanager.app.ui.theme.DarkPrimary
@@ -436,10 +439,103 @@ fun SettingsScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
         }
 
-        // 4. Leave / Sign Out Buttons
+        // 4. Quick Check Update Section
+        Text(
+            text = "App & Updates",
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.onBackground
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(RadiusLg))
+                .background(DarkSurface)
+                .clickable { if (!uiState.isCheckingUpdate) viewModel.checkForUpdates() }
+                .padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(DarkPrimaryGlow),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.SystemUpdate,
+                            contentDescription = null,
+                            tint = DarkPrimary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Column {
+                        Text(
+                            text = "Quick Check Update",
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = "Current version: v${BuildConfig.VERSION_NAME}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                if (uiState.isCheckingUpdate) {
+                    CircularProgressIndicator(
+                        color = DarkPrimary,
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp
+                    )
+                } else if (uiState.updateInfo != null && uiState.updateInfo!!.hasUpdate) {
+                    Button(
+                        onClick = { viewModel.checkForUpdates() },
+                        shape = RoundedCornerShape(RadiusSm),
+                        colors = ButtonDefaults.buttonColors(containerColor = PositiveDark),
+                        modifier = Modifier.height(36.dp)
+                    ) {
+                        Text("v${uiState.updateInfo!!.latestVersion} Available", style = MaterialTheme.typography.labelSmall, color = Color.Black, fontWeight = FontWeight.Bold)
+                    }
+                } else {
+                    OutlinedButton(
+                        onClick = { viewModel.checkForUpdates() },
+                        shape = RoundedCornerShape(RadiusSm),
+                        modifier = Modifier.height(36.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Refresh,
+                            contentDescription = null,
+                            tint = DarkPrimary,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Check Now", style = MaterialTheme.typography.labelSmall, color = DarkPrimary)
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // 5. Leave / Sign Out Buttons
         if (mess != null && !uiState.isManager) {
             OutlinedButton(
                 onClick = { viewModel.leaveMess() },
@@ -448,7 +544,7 @@ fun SettingsScreen(
                     .height(48.dp),
                 shape = RoundedCornerShape(RadiusLg)
             ) {
-                Icon(Icons.Default.ExitToApp, contentDescription = null, tint = MaterialTheme.colorScheme.error)
+                Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null, tint = MaterialTheme.colorScheme.error)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Leave Active Mess", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
             }
@@ -468,6 +564,16 @@ fun SettingsScreen(
             )
         ) {
             Text("Sign Out", fontWeight = FontWeight.Bold)
+        }
+    }
+
+    // Update Dialog Popup
+    uiState.updateInfo?.let { info ->
+        if (info.hasUpdate) {
+            UpdateDialog(
+                updateInfo = info,
+                onDismiss = { viewModel.dismissUpdateDialog() }
+            )
         }
     }
 
