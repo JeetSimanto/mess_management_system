@@ -109,6 +109,26 @@ class MessRepository @Inject constructor(
         awaitClose { listener.remove() }
     }
 
+    fun observeUserMesses(messIds: List<String>): Flow<List<Mess>> = callbackFlow {
+        if (messIds.isEmpty()) {
+            trySend(emptyList())
+            close()
+            return@callbackFlow
+        }
+
+        val listener = firestore.collection(Constants.COLLECTION_MESSES)
+            .whereIn("id", messIds.take(30))
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
+                val docs = snapshot?.documents?.mapNotNull { it.toObject(MessDocument::class.java)?.toDomain() } ?: emptyList()
+                trySend(docs)
+            }
+        awaitClose { listener.remove() }
+    }
+
     suspend fun transferManager(messId: String, newManagerId: String): Result<Unit> {
         return try {
             firestore.collection(Constants.COLLECTION_MESSES)

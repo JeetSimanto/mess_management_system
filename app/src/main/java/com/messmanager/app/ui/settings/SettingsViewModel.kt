@@ -9,15 +9,19 @@ import com.messmanager.app.domain.model.Member
 import com.messmanager.app.domain.model.Mess
 import com.messmanager.app.domain.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 data class SettingsUiState(
     val isLoading: Boolean = true,
+    val isActionLoading: Boolean = false,
     val user: User? = null,
+    val userMesses: List<Mess> = emptyList(),
     val activeMess: Mess? = null,
     val isManager: Boolean = false,
     val members: List<Member> = emptyList(),
@@ -35,6 +39,9 @@ class SettingsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
+    private var activeMessJob: Job? = null
+    private var userMessesJob: Job? = null
+
     init {
         loadSettingsData()
     }
@@ -45,9 +52,19 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             authRepository.observeCurrentUser().collect { user ->
                 _uiState.value = _uiState.value.copy(user = user)
-                val activeMessId = user?.activeMessId
-                if (activeMessId != null) {
-                    observeMess(activeMessId, currentUid)
+                if (user != null) {
+                    observeUserMesses(user.messIds)
+                    val activeMessId = user.activeMessId
+                    if (activeMessId != null) {
+                        observeMess(activeMessId, currentUid)
+                    } else {
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            activeMess = null,
+                            isManager = false,
+                            members = emptyList()
+                        )
+                    }
                 } else {
                     _uiState.value = _uiState.value.copy(isLoading = false)
                 }
@@ -55,8 +72,18 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    private fun observeUserMesses(messIds: List<String>) {
+        userMessesJob?.cancel()
+        userMessesJob = viewModelScope.launch {
+            messRepository.observeUserMesses(messIds).collect { list ->
+                _uiState.value = _uiState.value.copy(userMesses = list)
+            }
+        }
+    }
+
     private fun observeMess(messId: String, currentUid: String) {
-        viewModelScope.launch {
+        activeMessJob?.cancel()
+        activeMessJob = viewModelScope.launch {
             messRepository.observeMess(messId).collect { mess ->
                 if (mess == null) return@collect
                 val isManager = mess.managerId == currentUid
@@ -67,6 +94,71 @@ class SettingsViewModel @Inject constructor(
                     activeMess = mess,
                     isManager = isManager,
                     members = members
+                )
+            }
+        }
+    }
+
+    fun switchActiveMess(messId: String) {
+        if (_uiState.value.activeMess?.id == messId) return
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isActionLoading = true, error = null)
+            val result = authRepository.updateActiveMess(messId)
+            result.onSuccess {
+                _uiState.value = _uiState.value.copy(
+                    isActionLoading = false,
+                    successMessage = "Switched active mess."
+                )
+            }.onFailure { e ->
+                _uiState.value = _uiState.value.copy(
+                    isActionLoading = false,
+                    error = e.localizedMessage ?: "Failed to switch mess"
+                )
+            }
+        }
+    }
+
+    fun createMess(name: String, month: Int = LocalDate.now().monthValue, year: Int = LocalDate.now().year) {
+        val currentUid = authRepository.currentUserId ?: run {
+            _uiState.value = _uiState.value.copy(error = "User not logged in")
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isActionLoading = true, error = null)
+            val result = messRepository.createMess(name = name, month = month, year = year, userId = currentUid)
+            result.onSuccess { newMess ->
+                _uiState.value = _uiState.value.copy(
+                    isActionLoading = false,
+                    successMessage = "Created new mess '${newMess.name}'!"
+                )
+            }.onFailure { e ->
+                _uiState.value = _uiState.value.copy(
+                    isActionLoading = false,
+                    error = e.localizedMessage ?: "Failed to create mess"
+                )
+            }
+        }
+    }
+
+    fun joinMess(inviteCode: String) {
+        val currentUid = authRepository.currentUserId ?: run {
+            _uiState.value = _uiState.value.copy(error = "User not logged in")
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isActionLoading = true, error = null)
+            val result = messRepository.joinMess(inviteCode = inviteCode, userId = currentUid)
+            result.onSuccess { joinedMess ->
+                _uiState.value = _uiState.value.copy(
+                    isActionLoading = false,
+                    successMessage = "Joined mess '${joinedMess.name}'!"
+                )
+            }.onFailure { e ->
+                _uiState.value = _uiState.value.copy(
+                    isActionLoading = false,
+                    error = e.localizedMessage ?: "Failed to join mess"
                 )
             }
         }
@@ -103,7 +195,8 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             val result = messRepository.leaveMess(mess.id, currentUid)
             result.onSuccess {
-                authRepository.updateActiveMess(null)
+                val remainingMesses = _uiState.value.userMesses.filter { it.id != mess.id }
+                authRepository.updateActiveMess(remainingMesses.firstOrNull()?.id)
             }.onFailure { e ->
                 _uiState.value = _uiState.value.copy(error = e.localizedMessage ?: "Failed to leave mess")
             }
