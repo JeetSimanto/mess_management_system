@@ -8,9 +8,9 @@
 | Field | Value |
 |-------|-------|
 | **Current Phase** | Multi-Mess & Production Release |
-| **App Version** | `1.1.2` (Version Code 13) |
-| **Status** | 🟢 Production Ready — Replaced Icon with Exact User-Provided Photo (`1786590497726.png`) |
-| **Last Updated** | 2026-08-13T10:58:00+06:00 |
+| **App Version** | `1.1.3` (Version Code 14) |
+| **Status** | 🟢 Production Ready — Fixed Adaptive Foreground Layering & Mask Scaling |
+| **Last Updated** | 2026-08-13T11:10:00+06:00 |
 | **Started** | 2026-08-02 |
 
 ---
