@@ -8,8 +8,8 @@
 | Field | Value |
 |-------|-------|
 | **Current Phase** | Multi-Mess & Production Release |
-| **App Version** | `1.2.0` (Version Code 15) |
-| **Status** | 🟢 Production Ready — Full App Icon Audit & XML Bitmap Wrapper Architecture (`1786590497726.png`) |
+| **App Version** | `1.2.1` (Version Code 16) |
+| **Status** | 🟢 Production Ready — Direct Adaptive & Legacy Icon Generation (`1786590497726.png`) |
 | **Last Updated** | 2026-08-13T23:38:00+06:00 |
 | **Started** | 2026-08-02 |
 

@@ -1,5 +1,7 @@
 package com.messmanager.app.ui.components
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,15 +15,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,7 +45,7 @@ fun BottomNavBar(
     val navItems = listOf(
         NavItem(Screen.Dashboard, "Home", Icons.Default.Home),
         NavItem(Screen.Grocery, "Grocery", Icons.Default.ShoppingCart),
-        NavItem(Screen.Utility, "Utility", Icons.Default.ReceiptLong),
+        NavItem(Screen.Utility, "Utility", Icons.AutoMirrored.Filled.ReceiptLong),
         NavItem(Screen.Meals, "Meals", Icons.Default.Restaurant),
         NavItem(Screen.Contributions, "Deposits", Icons.Default.AccountBalanceWallet)
     )
@@ -59,10 +62,22 @@ fun BottomNavBar(
         navItems.forEach { item ->
             val isSelected = currentRoute == item.screen.route
 
+            val containerBg by animateColorAsState(
+                targetValue = if (isSelected) DarkPrimaryGlow else DarkSurface,
+                animationSpec = tween(200),
+                label = "nav_tab_bg"
+            )
+
+            val contentColor by animateColorAsState(
+                targetValue = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                animationSpec = tween(200),
+                label = "nav_tab_content_color"
+            )
+
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(RadiusLg))
-                    .background(if (isSelected) DarkPrimaryGlow else DarkSurface)
+                    .background(containerBg)
                     .clickable { onNavigate(item.screen) }
                     .padding(horizontal = 12.dp, vertical = 6.dp),
                 contentAlignment = Alignment.Center
@@ -74,7 +89,7 @@ fun BottomNavBar(
                     Icon(
                         imageVector = item.icon,
                         contentDescription = item.label,
-                        tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                        tint = contentColor,
                         modifier = Modifier.size(20.dp)
                     )
 
@@ -84,7 +99,7 @@ fun BottomNavBar(
                         text = item.label,
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                            color = contentColor
                         )
                     )
                 }
@@ -98,3 +113,4 @@ private data class NavItem(
     val label: String,
     val icon: ImageVector
 )
+

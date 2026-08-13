@@ -1,5 +1,8 @@
 package com.messmanager.app.ui.meal
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -19,9 +22,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -69,22 +77,26 @@ fun MealCalendarGrid(
             .background(DarkSurface)
             .padding(14.dp)
     ) {
-        // Top Header Row: DATE column header + Member columns (Horizontal Scroll)
+        // Sticky Header Row: DATE column header + Member columns (Horizontal Scroll)
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(RadiusSm))
+                .background(DarkSurfaceHigh.copy(alpha = 0.5f))
+                .padding(vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // DATE Header Box
             Box(
                 modifier = Modifier
                     .width(54.dp)
-                    .height(48.dp),
+                    .height(44.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = "DATE",
                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = DarkPrimary
                 )
             }
 
@@ -102,8 +114,8 @@ fun MealCalendarGrid(
                     Row(
                         modifier = Modifier
                             .width(84.dp)
-                            .height(48.dp)
-                            .padding(2.dp)
+                            .height(44.dp)
+                            .padding(horizontal = 2.dp)
                             .clip(RoundedCornerShape(RadiusSm))
                             .background(DarkSurfaceHigh)
                             .padding(horizontal = 6.dp),
@@ -160,7 +172,7 @@ fun MealCalendarGrid(
                     Text(
                         text = "${dayIndex + 1}",
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                        color = DarkPrimary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
@@ -176,35 +188,85 @@ fun MealCalendarGrid(
                         val mealDoc = meals.find { it.memberUid == member.uid && it.date == dateIso }
                         val currentCount = mealDoc?.count ?: 0.0
 
-                        val cellBg = getMealCellBg(currentCount)
-                        val cellTextColor = if (currentCount > 0) DarkPrimary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-
-                        Box(
-                            modifier = Modifier
-                                .padding(2.dp)
-                                .width(84.dp)
-                                .height(40.dp)
-                                .clip(RoundedCornerShape(RadiusSm))
-                                .background(cellBg)
-                                .clickable(enabled = isManager) {
-                                    val nextCount = getNextMealCount(currentCount)
-                                    onMealClick(member.uid, member.displayName, dateIso, nextCount)
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = if (currentCount > 0) {
-                                    if (currentCount % 1.0 == 0.0) "${currentCount.toInt()}" else "$currentCount"
-                                } else "-",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = cellTextColor
-                            )
-                        }
+                        MealCell(
+                            currentCount = currentCount,
+                            isManager = isManager,
+                            onClick = {
+                                val nextCount = getNextMealCount(currentCount)
+                                onMealClick(member.uid, member.displayName, dateIso, nextCount)
+                            }
+                        )
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun MealCell(
+    currentCount: Double,
+    isManager: Boolean,
+    onClick: () -> Unit
+) {
+    var isPressed by remember { mutableStateOf(false) }
+
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.88f else 1.0f,
+        animationSpec = spring(dampingRatio = 0.5f, stiffness = 400f),
+        label = "meal_cell_scale"
+    )
+
+    val targetBg = getMealCellBg(currentCount)
+    val animatedBg by animateColorAsState(
+        targetValue = targetBg,
+        animationSpec = spring(stiffness = 300f),
+        label = "meal_cell_bg"
+    )
+
+    val cellTextColor = if (currentCount > 0) DarkPrimary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+    val displayStr = formatMealCountDisplay(currentCount)
+
+    Box(
+        modifier = Modifier
+            .padding(2.dp)
+            .width(84.dp)
+            .height(40.dp)
+            .scale(scale)
+            .clip(RoundedCornerShape(RadiusSm))
+            .background(animatedBg)
+            .clickable(enabled = isManager) {
+                isPressed = true
+                onClick()
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = displayStr,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Bold,
+            color = cellTextColor
+        )
+    }
+
+    if (isPressed) {
+        androidx.compose.runtime.LaunchedEffect(Unit) {
+            kotlinx.coroutines.delay(100)
+            isPressed = false
+        }
+    }
+}
+
+private fun formatMealCountDisplay(count: Double): String {
+    return when (count) {
+        0.0 -> "-"
+        0.5 -> "½"
+        1.0 -> "1"
+        1.5 -> "1½"
+        2.0 -> "2"
+        2.5 -> "2½"
+        3.0 -> "3"
+        else -> if (count % 1.0 == 0.0) "${count.toInt()}" else "$count"
     }
 }
 
@@ -232,3 +294,4 @@ private fun getNextMealCount(current: Double): Double {
         else -> 0.0
     }
 }
+

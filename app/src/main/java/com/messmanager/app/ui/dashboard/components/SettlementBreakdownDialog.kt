@@ -210,9 +210,10 @@ private fun MemberSettlementRow(ms: MemberSettlement, colorIndex: Int) {
 
         Spacer(modifier = Modifier.width(8.dp))
 
+        val absBalance = kotlin.math.abs(ms.balancePaisa)
         val (badgeText, badgeBg, badgeTextColor) = when (ms.status) {
-            SettlementStatus.GET_BACK -> Triple("GET ${CurrencyFormatter.formatPaisa(ms.balancePaisa)}", PositiveDarkBg, PositiveDark)
-            SettlementStatus.PAY_EXTRA -> Triple("PAY ${CurrencyFormatter.formatPaisa(-ms.balancePaisa)}", NegativeDarkBg, NegativeDark)
+            SettlementStatus.GET_BACK -> Triple("GET ${CurrencyFormatter.formatPaisa(absBalance)}", PositiveDarkBg, PositiveDark)
+            SettlementStatus.PAY_EXTRA -> Triple("PAY ${CurrencyFormatter.formatPaisa(absBalance)}", NegativeDarkBg, NegativeDark)
             SettlementStatus.SETTLED -> Triple("SETTLED", DarkSurfaceHigh, MaterialTheme.colorScheme.onSurfaceVariant)
         }
 
