@@ -15,13 +15,13 @@ A modern, high-performance, dark-themed Android app for effortless shared bachel
 
 Click the button below to download the latest compiled Android APK directly:
 
-[<img src="https://img.shields.io/badge/Download_Latest_APK-v1.3.2-00E5A0?style=for-the-badge&logo=android&logoColor=black" height="50">](https://github.com/JeetSimanto/mess_management_system/releases/latest)
+[<img src="https://img.shields.io/badge/Download_Latest_APK-v1.3.3-00E5A0?style=for-the-badge&logo=android&logoColor=black" height="50">](https://github.com/JeetSimanto/mess_management_system/releases/latest)
 
 > 💡 **Auto-Update Enabled**: Once installed, the app automatically checks for new GitHub releases on launch and includes a **Quick Check Update** option in Settings so you never miss an update!
 
 ---
 
-## ✨ Key Features & Improvements (v1.3.2)
+## ✨ Key Features & Improvements (v1.3.3)
 
 ### 🏢 Multi-Mess Management & Instant Switching
 - **Create, Join, and Switch**: Users can easily create new messes, join existing ones via 6-character invite codes, and switch between active messes directly from **Settings**.

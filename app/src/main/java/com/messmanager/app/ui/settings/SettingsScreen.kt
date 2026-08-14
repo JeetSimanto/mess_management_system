@@ -476,8 +476,7 @@ fun SettingsScreen(
                     Box(
                         modifier = Modifier
                             .size(40.dp)
-                            .clip(CircleShape)
-                            .background(DarkPrimaryGlow),
+                            .clip(CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -624,8 +623,7 @@ fun SettingsScreen(
                         Box(
                             modifier = Modifier
                                 .size(40.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.error.copy(alpha = 0.15f)),
+                                .clip(CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(

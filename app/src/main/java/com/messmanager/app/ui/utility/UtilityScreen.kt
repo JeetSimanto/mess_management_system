@@ -163,8 +163,7 @@ fun UtilityScreen(
                                 Box(
                                     modifier = Modifier
                                         .size(40.dp)
-                                        .clip(CircleShape)
-                                        .background(DarkTertiary.copy(alpha = 0.2f)),
+                                        .clip(CircleShape),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(

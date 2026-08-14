@@ -63,33 +63,20 @@ fun TopBar(
             }
         },
         actions = {
-            Box(
-                modifier = Modifier
-                    .padding(end = 4.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-            ) {
-                IconButton(onClick = onOpenBorrows) {
-                    Icon(
-                        imageVector = Icons.Default.Handshake,
-                        contentDescription = "Borrow Requests",
-                        tint = DarkSecondary
-                    )
-                }
+            IconButton(onClick = onOpenBorrows) {
+                Icon(
+                    imageVector = Icons.Default.Handshake,
+                    contentDescription = "Borrow Requests",
+                    tint = DarkSecondary
+                )
             }
 
-            Box(
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-            ) {
-                IconButton(onClick = onOpenSettings) {
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = "Settings",
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
-                }
+            IconButton(onClick = onOpenSettings) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = "Settings",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
             }
         }
     )

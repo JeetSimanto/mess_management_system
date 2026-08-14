@@ -62,8 +62,7 @@ fun WelcomeScreen(
             Box(
                 modifier = Modifier
                     .size(96.dp)
-                    .clip(CircleShape)
-                    .background(DarkPrimaryGlow),
+                    .clip(CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(

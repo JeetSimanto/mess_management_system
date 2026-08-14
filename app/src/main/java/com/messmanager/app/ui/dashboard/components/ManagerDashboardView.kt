@@ -168,8 +168,7 @@ fun ManagerDashboardView(
                     Box(
                         modifier = Modifier
                             .size(44.dp)
-                            .clip(CircleShape)
-                            .background(DarkPrimaryGlow),
+                            .clip(CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -226,8 +225,7 @@ private fun StatCard(
             Box(
                 modifier = Modifier
                     .size(38.dp)
-                    .clip(CircleShape)
-                    .background(iconTint.copy(alpha = 0.15f)),
+                    .clip(CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(

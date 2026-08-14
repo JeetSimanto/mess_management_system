@@ -85,8 +85,7 @@ fun SettlementBreakdownDialog(
                         Box(
                             modifier = Modifier
                                 .size(36.dp)
-                                .clip(CircleShape)
-                                .background(DarkPrimaryGlow),
+                                .clip(CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(

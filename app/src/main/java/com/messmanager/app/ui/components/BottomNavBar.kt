@@ -68,12 +68,6 @@ fun BottomNavBar(
             navItems.forEach { item ->
                 val isSelected = currentRoute == item.screen.route
 
-                val containerBg by animateColorAsState(
-                    targetValue = if (isSelected) DarkPrimaryGlow else DarkSurface,
-                    animationSpec = tween(200),
-                    label = "nav_tab_bg"
-                )
-
                 val contentColor by animateColorAsState(
                     targetValue = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                     animationSpec = tween(200),
@@ -83,7 +77,6 @@ fun BottomNavBar(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(16.dp))
-                        .background(containerBg)
                         .clickable { onNavigate(item.screen) }
                         .padding(horizontal = 14.dp, vertical = 6.dp),
                     contentAlignment = Alignment.Center

@@ -224,8 +224,7 @@ private fun BorrowItemRow(
                 Box(
                     modifier = Modifier
                         .size(38.dp)
-                        .clip(CircleShape)
-                        .background(DarkSecondary.copy(alpha = 0.2f)),
+                        .clip(CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(

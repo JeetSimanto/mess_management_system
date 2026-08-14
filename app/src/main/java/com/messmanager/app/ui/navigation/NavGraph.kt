@@ -73,8 +73,7 @@ fun NavGraph(
                 Box(
                     modifier = Modifier
                         .size(80.dp)
-                        .clip(CircleShape)
-                        .background(DarkPrimaryGlow),
+                        .clip(CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
