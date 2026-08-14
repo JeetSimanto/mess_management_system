@@ -1,10 +1,5 @@
 package com.messmanager.app.ui.meal
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,17 +13,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,19 +33,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.messmanager.app.domain.model.Meal
 import com.messmanager.app.domain.model.Member
 import com.messmanager.app.ui.theme.DarkBackground
 import com.messmanager.app.ui.theme.DarkOutline
 import com.messmanager.app.ui.theme.DarkPrimary
-import com.messmanager.app.ui.theme.DarkPrimaryGlow
 import com.messmanager.app.ui.theme.DarkSecondary
 import com.messmanager.app.ui.theme.DarkSurface
-import com.messmanager.app.ui.theme.DarkSurfaceHigh
 import com.messmanager.app.ui.theme.DarkTertiary
-import com.messmanager.app.ui.theme.RadiusLg
-import com.messmanager.app.ui.theme.RadiusSm
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
@@ -103,26 +88,18 @@ fun MemberMealCalendarView(
             .border(BorderStroke(1.dp, DarkOutline), RoundedCornerShape(20.dp))
             .padding(16.dp)
     ) {
-        // Month & Year Selector Header matching UI design
+        // Month & Year Header (Clean, un-boxed navigation icons matching flat icon design)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .size(38.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(DarkSurfaceHigh),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ChevronLeft,
-                    contentDescription = "Previous Month",
-                    tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
+            Icon(
+                imageVector = Icons.Default.ChevronLeft,
+                contentDescription = "Previous Month",
+                tint = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.size(24.dp)
+            )
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
@@ -137,20 +114,12 @@ fun MemberMealCalendarView(
                 )
             }
 
-            Box(
-                modifier = Modifier
-                    .size(38.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(DarkSurfaceHigh),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ChevronRight,
-                    contentDescription = "Next Month",
-                    tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = "Next Month",
+                tint = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.size(24.dp)
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -243,7 +212,7 @@ fun MemberMealCalendarView(
 
                             Spacer(modifier = Modifier.height(2.dp))
 
-                            // Indicator Dots under date (matching design)
+                            // Indicator Dots under date
                             if (cell.isCurrentMonth && dayMealCount > 0) {
                                 Row(
                                     horizontalArrangement = Arrangement.spacedBy(2.dp),
@@ -282,219 +251,6 @@ fun MemberMealCalendarView(
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Bottom Selected Day Details Section (matching design with drag handle pill)
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .width(36.dp)
-                    .height(4.dp)
-                    .clip(CircleShape)
-                    .background(DarkOutline)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(14.dp))
-
-        val monthStr = if (month < 10) "0$month" else "$month"
-        val dayStr = if (selectedDay < 10) "0$selectedDay" else "$selectedDay"
-        val selectedDateIso = "$year-$monthStr-$dayStr"
-        val currentMealDoc = meals.find { it.memberUid == member.uid && it.date == selectedDateIso }
-        val countForSelectedDay = currentMealDoc?.count ?: 0.0
-
-        // Selected Date Summary Header
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column {
-                Text(
-                    text = "Day $selectedDay $monthName",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                Text(
-                    text = "Daily Meal Log",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            // Total Meals Count Badge
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(RadiusSm))
-                    .background(DarkPrimaryGlow)
-                    .padding(horizontal = 10.dp, vertical = 4.dp)
-            ) {
-                Text(
-                    text = "${formatCountDisplay(countForSelectedDay)} Meals",
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                    color = DarkPrimary
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Meal Session Items (Breakfast, Lunch, Dinner)
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            MealSessionCard(
-                title = "Breakfast",
-                timeRange = "07:00 AM - 09:00 AM",
-                isIncluded = countForSelectedDay >= 0.5,
-                dotColor = DarkPrimary,
-                countText = if (countForSelectedDay >= 0.5) "0.5 Meal" else "Not Logged"
-            )
-
-            MealSessionCard(
-                title = "Lunch",
-                timeRange = "01:00 PM - 02:30 PM",
-                isIncluded = countForSelectedDay >= 1.0,
-                dotColor = DarkSecondary,
-                countText = if (countForSelectedDay >= 1.0) "1.0 Meal" else "Not Logged"
-            )
-
-            MealSessionCard(
-                title = "Dinner",
-                timeRange = "08:00 PM - 09:30 PM",
-                isIncluded = countForSelectedDay >= 2.0,
-                dotColor = DarkTertiary,
-                countText = if (countForSelectedDay >= 2.0) "1.0 Meal" else "Not Logged"
-            )
-        }
-
-        // Manager Interactive Quick Meal Count Controls
-        if (isManager) {
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(RadiusLg))
-                    .background(DarkSurfaceHigh)
-                    .padding(12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Update Day $selectedDay Meals",
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(DarkSurface)
-                            .clickable {
-                                val nextCount = (countForSelectedDay - 0.5).coerceAtLeast(0.0)
-                                onMealClick(member.uid, member.displayName, selectedDateIso, nextCount)
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Remove,
-                            contentDescription = "Decrease",
-                            tint = DarkPrimary,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    Text(
-                        text = formatCountDisplay(countForSelectedDay),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(DarkPrimary)
-                            .clickable {
-                                val nextCount = (countForSelectedDay + 0.5).coerceAtMost(4.0)
-                                onMealClick(member.uid, member.displayName, selectedDateIso, nextCount)
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Increase",
-                            tint = DarkBackground,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun MealSessionCard(
-    title: String,
-    timeRange: String,
-    isIncluded: Boolean,
-    dotColor: Color,
-    countText: String
-) {
-    val bgAlpha = if (isIncluded) 1.0f else 0.5f
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(RadiusLg))
-            .background(DarkSurfaceHigh.copy(alpha = bgAlpha))
-            .padding(horizontal = 14.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(8.dp)
-                    .clip(CircleShape)
-                    .background(if (isIncluded) dotColor else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
-            )
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Column {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                    color = if (isIncluded) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = timeRange,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-
-        Text(
-            text = countText,
-            style = MaterialTheme.typography.labelMedium.copy(
-                fontWeight = if (isIncluded) FontWeight.Bold else FontWeight.Normal
-            ),
-            color = if (isIncluded) dotColor else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-        )
     }
 }
 
@@ -502,16 +258,3 @@ private data class CalendarCellData(
     val day: Int,
     val isCurrentMonth: Boolean
 )
-
-private fun formatCountDisplay(count: Double): String {
-    return when (count) {
-        0.0 -> "0"
-        0.5 -> "½"
-        1.0 -> "1"
-        1.5 -> "1½"
-        2.0 -> "2"
-        2.5 -> "2½"
-        3.0 -> "3"
-        else -> if (count % 1.0 == 0.0) "${count.toInt()}" else "$count"
-    }
-}
