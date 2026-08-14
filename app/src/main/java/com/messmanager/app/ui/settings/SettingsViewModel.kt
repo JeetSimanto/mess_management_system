@@ -229,6 +229,34 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun deleteMess() {
+        val mess = _uiState.value.activeMess ?: return
+        val currentUid = authRepository.currentUserId ?: return
+
+        if (!_uiState.value.isManager) {
+            _uiState.value = _uiState.value.copy(error = "Only the Mess Manager can delete this mess.")
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isActionLoading = true, error = null)
+            val result = messRepository.deleteMess(mess.id, currentUid)
+            result.onSuccess {
+                val remainingMesses = _uiState.value.userMesses.filter { it.id != mess.id }
+                authRepository.updateActiveMess(remainingMesses.firstOrNull()?.id)
+                _uiState.value = _uiState.value.copy(
+                    isActionLoading = false,
+                    successMessage = "Mess '${mess.name}' deleted successfully."
+                )
+            }.onFailure { e ->
+                _uiState.value = _uiState.value.copy(
+                    isActionLoading = false,
+                    error = e.localizedMessage ?: "Failed to delete mess"
+                )
+            }
+        }
+    }
+
     fun signOut() {
         authRepository.signOut()
     }

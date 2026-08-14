@@ -160,4 +160,31 @@ class MessRepository @Inject constructor(
     suspend fun leaveMess(messId: String, userId: String): Result<Unit> {
         return removeMember(messId, userId)
     }
+
+    suspend fun deleteMess(messId: String, managerId: String): Result<Unit> {
+        return try {
+            val messRef = firestore.collection(Constants.COLLECTION_MESSES).document(messId)
+            val messDoc = messRef.get().await().toObject(MessDocument::class.java)
+                ?: return Result.failure(Exception("Mess not found."))
+
+            if (messDoc.managerId != managerId) {
+                return Result.failure(Exception("Only the Mess Manager can delete this mess."))
+            }
+
+            val batch = firestore.batch()
+            // Delete mess document
+            batch.delete(messRef)
+
+            // Remove messId from all members' messIds list
+            for (memberId in messDoc.memberIds) {
+                val userRef = firestore.collection(Constants.COLLECTION_USERS).document(memberId)
+                batch.update(userRef, "messIds", FieldValue.arrayRemove(messId))
+            }
+
+            batch.commit().await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
