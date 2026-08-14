@@ -5,15 +5,15 @@ import androidx.compose.ui.graphics.Color
 
 // Dark Theme Colors (Carbon Mint Palette)
 val DarkPrimary = Color(0xFF00E5A0)
-val DarkPrimaryGlow = Color(0x3300E5A0)
+val DarkPrimaryGlow = Color(0x5500E5A0)
 val DarkPrimaryMuted = Color(0xFF00B37D)
 
 val DarkSecondary = Color(0xFFFFB547)
 val DarkSecondaryMuted = Color(0xFFCC9139)
-val DarkSecondaryGlow = Color(0x33FFB547)
+val DarkSecondaryGlow = Color(0x55FFB547)
 
 val DarkTertiary = Color(0xFF818CF8)
-val DarkTertiaryGlow = Color(0x33818CF8)
+val DarkTertiaryGlow = Color(0x55818CF8)
 
 val DarkBackground = Color(0xFF0A0E14)
 val DarkSurfaceLowest = Color(0xFF0F1318)
@@ -29,25 +29,25 @@ val DarkOnSurfaceFaint = Color(0xFFFFFFFF)
 val DarkOutline = Color(0xFF2A3544)
 val DarkOutlineVariant = Color(0xFF1E2836)
 
-// Semantic Colors
-val PositiveDark = Color(0xFF34D399)
-val PositiveDarkBg = Color(0x1A34D399)
+// Semantic Colors (Denser Green & Yellow Fields)
+val PositiveDark = Color(0xFF00E5A0)
+val PositiveDarkBg = Color(0x4000E5A0)
 val PositiveLight = Color(0xFF059669)
 
 val NegativeDark = Color(0xFFF87171)
-val NegativeDarkBg = Color(0x1AF87171)
+val NegativeDarkBg = Color(0x40F87171)
 
 val InfoDark = Color(0xFF60A5FA)
-val InfoDarkBg = Color(0x1A60A5FA)
+val InfoDarkBg = Color(0x4060A5FA)
 
-val WarningDark = Color(0xFFFBBF24)
-val WarningDarkBg = Color(0x1AFBBF24)
+val WarningDark = Color(0xFFFFB547)
+val WarningDarkBg = Color(0x40FFB547)
 
 // Gradient Brushes
 val PrimaryHeroGradient = Brush.linearGradient(
     colors = listOf(
-        Color(0xFF00E5A0).copy(alpha = 0.25f),
-        Color(0xFF00B37D).copy(alpha = 0.10f)
+        Color(0xFF00E5A0).copy(alpha = 0.45f),
+        Color(0xFF00B37D).copy(alpha = 0.25f)
     )
 )
 

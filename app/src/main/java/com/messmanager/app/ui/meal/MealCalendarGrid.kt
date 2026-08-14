@@ -273,12 +273,12 @@ private fun formatMealCountDisplay(count: Double): String {
 private fun getMealCellBg(count: Double): Color {
     return when (count) {
         0.0 -> DarkSurfaceHigh
-        0.5 -> Color(0x2200E5A0)
-        1.0 -> DarkPrimaryGlow
-        1.5 -> Color(0x4400E5A0)
-        2.0 -> Color(0x5500E5A0)
-        2.5 -> Color(0x6600E5A0)
-        3.0 -> Color(0x7700E5A0)
+        0.5 -> Color(0x3800E5A0)
+        1.0 -> Color(0x5500E5A0)
+        1.5 -> Color(0x7700E5A0)
+        2.0 -> Color(0x9900E5A0)
+        2.5 -> Color(0xBB00E5A0)
+        3.0 -> Color(0xDD00E5A0)
         else -> DarkSurfaceHigh
     }
 }
