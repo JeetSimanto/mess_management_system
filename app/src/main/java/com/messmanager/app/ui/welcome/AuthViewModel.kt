@@ -44,7 +44,14 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             authRepository.observeCurrentUser().collect { user ->
                 _uiState.value = _uiState.value.copy(user = user)
-                val activeMessId = user?.activeMessId
+                var activeMessId = user?.activeMessId
+
+                if (activeMessId == null && !user?.messIds.isNullOrEmpty()) {
+                    val fallbackMessId = user!!.messIds.first()
+                    authRepository.updateActiveMess(fallbackMessId)
+                    activeMessId = fallbackMessId
+                }
+
                 if (activeMessId != null) {
                     observeActiveMess(activeMessId)
                 } else {
@@ -66,11 +73,26 @@ class AuthViewModel @Inject constructor(
         activeMessJob?.cancel()
         activeMessJob = viewModelScope.launch {
             messRepository.observeMess(messId).collect { mess ->
-                _uiState.value = _uiState.value.copy(
-                    activeMess = mess,
-                    isMessCreatedOrJoined = mess != null,
-                    isAuthInitializing = false
-                )
+                if (mess == null) {
+                    val user = _uiState.value.user
+                    val remainingMessIds = user?.messIds?.filter { it != messId } ?: emptyList()
+                    if (remainingMessIds.isNotEmpty()) {
+                        val nextMessId = remainingMessIds.first()
+                        authRepository.updateActiveMess(nextMessId)
+                    } else {
+                        _uiState.value = _uiState.value.copy(
+                            activeMess = null,
+                            isMessCreatedOrJoined = false,
+                            isAuthInitializing = false
+                        )
+                    }
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        activeMess = mess,
+                        isMessCreatedOrJoined = true,
+                        isAuthInitializing = false
+                    )
+                }
             }
         }
     }

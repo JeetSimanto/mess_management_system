@@ -56,11 +56,13 @@ class AuthRepository @Inject constructor(
 
             val user = if (docSnapshot.exists()) {
                 val existingDoc = docSnapshot.toObject(UserDocument::class.java)!!
-                // Update profile info in case it changed
+                val autoActiveMessId = existingDoc.activeMessId ?: existingDoc.messIds.firstOrNull()
+                // Update profile info in case it changed & ensure activeMessId is populated if messes exist
                 val updatedDoc = existingDoc.copy(
                     displayName = firebaseUser.displayName ?: existingDoc.displayName,
                     email = firebaseUser.email ?: existingDoc.email,
-                    photoUrl = firebaseUser.photoUrl?.toString() ?: existingDoc.photoUrl
+                    photoUrl = firebaseUser.photoUrl?.toString() ?: existingDoc.photoUrl,
+                    activeMessId = autoActiveMessId
                 )
                 userRef.set(updatedDoc).await()
                 updatedDoc.toDomain()
