@@ -60,22 +60,6 @@ fun TopBar(
                         color = DarkPrimary
                     )
                 }
-
-                Spacer(modifier = Modifier.width(12.dp))
-
-                Column {
-                    Text(
-                        text = messName.ifEmpty { "Mess Manager" },
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                    )
-                    if (monthYearText.isNotEmpty()) {
-                        Text(
-                            text = monthYearText,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
             }
         },
         actions = {

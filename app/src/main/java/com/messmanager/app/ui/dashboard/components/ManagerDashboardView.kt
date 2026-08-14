@@ -72,32 +72,7 @@ fun ManagerDashboardView(
                 .padding(20.dp)
         ) {
             Column {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "TOTAL MESS EXPENSE",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = DarkPrimary,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(RadiusSm))
-                            .background(DarkSurfaceHigh)
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                    ) {
-                        Text(
-                            text = "MANAGER OVERVIEW",
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                            color = DarkPrimary
-                        )
-                    }
-                }
 
-                Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
                     text = CurrencyFormatter.formatPaisa(settlement.totalExpensePaisa),
@@ -209,12 +184,6 @@ fun ManagerDashboardView(
                             text = "Member Settlement Breakdown",
                             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = "Tap to view individual balance & GET/PAY details",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
