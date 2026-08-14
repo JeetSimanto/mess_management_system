@@ -21,7 +21,8 @@ data class AuthUiState(
     val user: User? = null,
     val activeMess: Mess? = null,
     val error: String? = null,
-    val isMessCreatedOrJoined: Boolean = false
+    val isMessCreatedOrJoined: Boolean = false,
+    val isAuthInitializing: Boolean = true
 )
 
 @HiltViewModel
@@ -48,7 +49,14 @@ class AuthViewModel @Inject constructor(
                     observeActiveMess(activeMessId)
                 } else {
                     activeMessJob?.cancel()
-                    _uiState.value = _uiState.value.copy(activeMess = null, isMessCreatedOrJoined = false)
+                    _uiState.value = _uiState.value.copy(
+                        activeMess = null,
+                        isMessCreatedOrJoined = false,
+                        isAuthInitializing = false
+                    )
+                }
+                if (user == null) {
+                    _uiState.value = _uiState.value.copy(isAuthInitializing = false)
                 }
             }
         }
@@ -60,7 +68,8 @@ class AuthViewModel @Inject constructor(
             messRepository.observeMess(messId).collect { mess ->
                 _uiState.value = _uiState.value.copy(
                     activeMess = mess,
-                    isMessCreatedOrJoined = mess != null
+                    isMessCreatedOrJoined = mess != null,
+                    isAuthInitializing = false
                 )
             }
         }
@@ -126,6 +135,6 @@ class AuthViewModel @Inject constructor(
 
     fun signOut() {
         authRepository.signOut()
-        _uiState.value = AuthUiState()
+        _uiState.value = AuthUiState(isAuthInitializing = false)
     }
 }
