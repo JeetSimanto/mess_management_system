@@ -50,58 +50,65 @@ fun BottomNavBar(
         NavItem(Screen.Contributions, "Deposits", Icons.Default.AccountBalanceWallet)
     )
 
-    Row(
+    Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(64.dp)
-            .background(DarkSurface)
-            .padding(horizontal = 4.dp, vertical = 6.dp),
-        horizontalArrangement = Arrangement.SpaceAround,
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
-        navItems.forEach { item ->
-            val isSelected = currentRoute == item.screen.route
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp)
+                .clip(RoundedCornerShape(24.dp))
+                .background(DarkSurface)
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            navItems.forEach { item ->
+                val isSelected = currentRoute == item.screen.route
 
-            val containerBg by animateColorAsState(
-                targetValue = if (isSelected) DarkPrimaryGlow else DarkSurface,
-                animationSpec = tween(200),
-                label = "nav_tab_bg"
-            )
+                val containerBg by animateColorAsState(
+                    targetValue = if (isSelected) DarkPrimaryGlow else DarkSurface,
+                    animationSpec = tween(200),
+                    label = "nav_tab_bg"
+                )
 
-            val contentColor by animateColorAsState(
-                targetValue = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                animationSpec = tween(200),
-                label = "nav_tab_content_color"
-            )
+                val contentColor by animateColorAsState(
+                    targetValue = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    animationSpec = tween(200),
+                    label = "nav_tab_content_color"
+                )
 
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(RadiusLg))
-                    .background(containerBg)
-                    .clickable { onNavigate(item.screen) }
-                    .padding(horizontal = 12.dp, vertical = 6.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(containerBg)
+                        .clickable { onNavigate(item.screen) }
+                        .padding(horizontal = 14.dp, vertical = 6.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = item.icon,
-                        contentDescription = item.label,
-                        tint = contentColor,
-                        modifier = Modifier.size(20.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(2.dp))
-
-                    Text(
-                        text = item.label,
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                            color = contentColor
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = item.icon,
+                            contentDescription = item.label,
+                            tint = contentColor,
+                            modifier = Modifier.size(20.dp)
                         )
-                    )
+
+                        Spacer(modifier = Modifier.height(2.dp))
+
+                        Text(
+                            text = item.label,
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                color = contentColor
+                            )
+                        )
+                    }
                 }
             }
         }

@@ -1,6 +1,8 @@
 package com.messmanager.app.ui.meal
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -24,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.messmanager.app.ui.theme.CurrencyHeroStyle
+import com.messmanager.app.ui.theme.DarkOutline
 import com.messmanager.app.ui.theme.DarkPrimaryGlow
 import com.messmanager.app.ui.theme.RadiusLg
 
@@ -57,8 +60,9 @@ fun MealTrackerScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(RadiusLg))
-                .background(DarkPrimaryGlow)
+                .clip(RoundedCornerShape(20.dp))
+                .background(DarkPrimaryGlow.copy(alpha = 0.35f))
+                .border(BorderStroke(1.dp, com.messmanager.app.ui.theme.DarkPrimary.copy(alpha = 0.35f)), RoundedCornerShape(20.dp))
                 .padding(20.dp)
         ) {
             Column {

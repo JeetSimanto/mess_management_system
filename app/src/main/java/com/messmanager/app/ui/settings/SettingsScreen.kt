@@ -5,7 +5,9 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -64,6 +66,7 @@ import com.messmanager.app.BuildConfig
 import com.messmanager.app.ui.components.UpdateDialog
 import com.messmanager.app.ui.components.appTextFieldColors
 import com.messmanager.app.ui.theme.AvatarColors
+import com.messmanager.app.ui.theme.DarkOutline
 import com.messmanager.app.ui.theme.DarkPrimary
 import com.messmanager.app.ui.theme.DarkPrimaryGlow
 import com.messmanager.app.ui.theme.DarkSecondary
@@ -125,8 +128,9 @@ fun SettingsScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(RadiusLg))
-                    .background(DarkPrimaryGlow)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(DarkPrimaryGlow.copy(alpha = 0.35f))
+                    .border(BorderStroke(1.dp, DarkPrimary.copy(alpha = 0.35f)), RoundedCornerShape(20.dp))
                     .padding(20.dp)
             ) {
                 Column {

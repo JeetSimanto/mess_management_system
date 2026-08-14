@@ -1,6 +1,8 @@
 package com.messmanager.app.ui.dashboard.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,6 +40,7 @@ import com.messmanager.app.domain.model.MemberSettlement
 import com.messmanager.app.domain.model.MessSettlement
 import com.messmanager.app.domain.model.SettlementStatus
 import com.messmanager.app.ui.theme.AvatarColors
+import com.messmanager.app.ui.theme.DarkOutline
 import com.messmanager.app.ui.theme.DarkPrimary
 import com.messmanager.app.ui.theme.DarkPrimaryGlow
 import com.messmanager.app.ui.theme.DarkSurface
@@ -62,8 +65,9 @@ fun SettlementBreakdownDialog(
         Surface(
             modifier = Modifier
                 .fillMaxWidth(0.92f)
-                .clip(RoundedCornerShape(RadiusLg))
-                .background(DarkSurface),
+                .clip(RoundedCornerShape(20.dp))
+                .background(DarkSurface)
+                .border(BorderStroke(1.dp, DarkOutline), RoundedCornerShape(20.dp)),
             color = DarkSurface
         ) {
             Column(

@@ -3,7 +3,9 @@ package com.messmanager.app.ui.meal
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import com.messmanager.app.domain.model.Meal
 import com.messmanager.app.domain.model.Member
 import com.messmanager.app.ui.theme.AvatarColors
+import com.messmanager.app.ui.theme.DarkOutline
 import com.messmanager.app.ui.theme.DarkPrimary
 import com.messmanager.app.ui.theme.DarkPrimaryGlow
 import com.messmanager.app.ui.theme.DarkSurface
@@ -73,8 +76,9 @@ fun MealCalendarGrid(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(RadiusLg))
+            .clip(RoundedCornerShape(20.dp))
             .background(DarkSurface)
+            .border(BorderStroke(1.dp, DarkOutline), RoundedCornerShape(20.dp))
             .padding(14.dp)
     ) {
         // Sticky Header Row: DATE column header + Member columns (Horizontal Scroll)

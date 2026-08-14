@@ -1,6 +1,8 @@
 package com.messmanager.app.ui.utility
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.messmanager.app.domain.model.Utility
 import com.messmanager.app.ui.theme.CurrencyHeroStyle
+import com.messmanager.app.ui.theme.DarkOutline
 import com.messmanager.app.ui.theme.DarkPrimary
 import com.messmanager.app.ui.theme.DarkPrimaryGlow
 import com.messmanager.app.ui.theme.DarkSecondary
@@ -105,8 +108,9 @@ fun UtilityScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(RadiusLg))
-                    .background(DarkPrimaryGlow)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(DarkPrimaryGlow.copy(alpha = 0.35f))
+                    .border(BorderStroke(1.dp, DarkPrimary.copy(alpha = 0.35f)), RoundedCornerShape(20.dp))
                     .padding(20.dp)
             ) {
                 Text(
@@ -129,8 +133,9 @@ fun UtilityScreen(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .clip(RoundedCornerShape(RadiusLg))
+                        .clip(RoundedCornerShape(20.dp))
                         .background(DarkSurface)
+                        .border(BorderStroke(1.dp, DarkOutline), RoundedCornerShape(20.dp))
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -140,8 +145,9 @@ fun UtilityScreen(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(RadiusLg))
+                                .clip(RoundedCornerShape(16.dp))
                                 .background(DarkSurfaceHigh)
+                                .border(BorderStroke(1.dp, DarkOutline.copy(alpha = 0.5f)), RoundedCornerShape(16.dp))
                                 .clickable(enabled = uiState.isManager) {
                                     selectedUtilityForEdit = utility
                                     showSheet = true

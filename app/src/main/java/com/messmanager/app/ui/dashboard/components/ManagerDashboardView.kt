@@ -3,7 +3,9 @@ package com.messmanager.app.ui.dashboard.components
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.messmanager.app.domain.model.MessSettlement
 import com.messmanager.app.ui.theme.CurrencyHeroStyle
+import com.messmanager.app.ui.theme.DarkOutline
 import com.messmanager.app.ui.theme.DarkPrimary
 import com.messmanager.app.ui.theme.DarkPrimaryGlow
 import com.messmanager.app.ui.theme.DarkSecondary
@@ -67,13 +70,12 @@ fun ManagerDashboardView(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(RadiusLg))
-                .background(DarkPrimaryGlow)
+                .clip(RoundedCornerShape(20.dp))
+                .background(DarkPrimaryGlow.copy(alpha = 0.35f))
+                .border(BorderStroke(1.dp, DarkPrimary.copy(alpha = 0.35f)), RoundedCornerShape(20.dp))
                 .padding(20.dp)
         ) {
             Column {
-
-
                 Text(
                     text = CurrencyFormatter.formatPaisa(settlement.totalExpensePaisa),
                     style = CurrencyHeroStyle,
@@ -102,7 +104,7 @@ fun ManagerDashboardView(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 4 Key Stat Chips
+        // 4 Key Stat Chips Grid
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -151,8 +153,9 @@ fun ManagerDashboardView(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(RadiusLg))
+                .clip(RoundedCornerShape(20.dp))
                 .background(DarkSurface)
+                .border(BorderStroke(1.dp, DarkOutline), RoundedCornerShape(20.dp))
                 .clickable { showSettlementDialog = true }
                 .padding(16.dp)
         ) {
@@ -164,7 +167,7 @@ fun ManagerDashboardView(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
-                            .size(42.dp)
+                            .size(44.dp)
                             .clip(CircleShape)
                             .background(DarkPrimaryGlow),
                         contentAlignment = Alignment.Center
@@ -179,13 +182,11 @@ fun ManagerDashboardView(
 
                     Spacer(modifier = Modifier.width(14.dp))
 
-                    Column {
-                        Text(
-                            text = "Member Settlement Breakdown",
-                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
+                    Text(
+                        text = "Member Settlement Breakdown",
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
 
                 Icon(
@@ -216,14 +217,15 @@ private fun StatCard(
 ) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(RadiusLg))
-            .background(DarkSurfaceHigh)
-            .padding(14.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(DarkSurface)
+            .border(BorderStroke(1.dp, DarkOutline), RoundedCornerShape(20.dp))
+            .padding(16.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Column {
             Box(
                 modifier = Modifier
-                    .size(36.dp)
+                    .size(38.dp)
                     .clip(CircleShape)
                     .background(iconTint.copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center
@@ -232,25 +234,25 @@ private fun StatCard(
                     imageVector = icon,
                     contentDescription = null,
                     tint = iconTint,
-                    modifier = Modifier.size(18.dp)
+                    modifier = Modifier.size(20.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            Column {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = value,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            }
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onBackground
+            )
         }
     }
 }
