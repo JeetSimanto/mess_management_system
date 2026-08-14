@@ -13,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -37,6 +38,9 @@ class ContributionViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ContributionUiState())
     val uiState: StateFlow<ContributionUiState> = _uiState.asStateFlow()
 
+    private var messJob: Job? = null
+    private var contributionJob: Job? = null
+
     init {
         loadContributions()
     }
@@ -46,26 +50,52 @@ class ContributionViewModel @Inject constructor(
 
         viewModelScope.launch {
             authRepository.observeCurrentUser().collect { user ->
-                val messId = user?.activeMessId ?: return@collect
-                messRepository.observeMess(messId).collect { mess ->
-                    if (mess == null) return@collect
-                    val isManager = mess.managerId == currentUid
-                    val members = dashboardRepository.getMessMembers(mess)
-
+                val messId = user?.activeMessId
+                if (messId != null) {
+                    observeMess(messId, currentUid)
+                } else {
+                    cancelJobs()
                     _uiState.value = _uiState.value.copy(
-                        activeMess = mess,
-                        isManager = isManager,
-                        members = members
+                        isLoading = false,
+                        activeMess = null,
+                        contributions = emptyList(),
+                        totalContributionPaisa = 0
                     )
-
-                    observeContributionEntries(mess)
                 }
             }
         }
     }
 
+    private fun cancelJobs() {
+        messJob?.cancel()
+        contributionJob?.cancel()
+    }
+
+    private fun observeMess(messId: String, currentUid: String) {
+        cancelJobs()
+        messJob = viewModelScope.launch {
+            messRepository.observeMess(messId).collect { mess ->
+                if (mess == null) {
+                    _uiState.value = _uiState.value.copy(isLoading = false, activeMess = null)
+                    return@collect
+                }
+                val isManager = mess.managerId == currentUid
+                val members = dashboardRepository.getMessMembers(mess)
+
+                _uiState.value = _uiState.value.copy(
+                    activeMess = mess,
+                    isManager = isManager,
+                    members = members
+                )
+
+                observeContributionEntries(mess)
+            }
+        }
+    }
+
     private fun observeContributionEntries(mess: Mess) {
-        viewModelScope.launch {
+        contributionJob?.cancel()
+        contributionJob = viewModelScope.launch {
             contributionRepository.observeContributions(mess.id, mess.month, mess.year).collect { list ->
                 val totalPaisa = list.sumOf { it.amountPaisa }
                 _uiState.value = _uiState.value.copy(

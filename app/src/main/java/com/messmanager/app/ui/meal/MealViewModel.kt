@@ -13,9 +13,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.YearMonth
 import javax.inject.Inject
 
 data class MealUiState(
@@ -40,6 +40,9 @@ class MealViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(MealUiState())
     val uiState: StateFlow<MealUiState> = _uiState.asStateFlow()
 
+    private var messJob: Job? = null
+    private var mealJob: Job? = null
+
     init {
         loadMeals()
     }
@@ -49,26 +52,52 @@ class MealViewModel @Inject constructor(
 
         viewModelScope.launch {
             authRepository.observeCurrentUser().collect { user ->
-                val messId = user?.activeMessId ?: return@collect
-                messRepository.observeMess(messId).collect { mess ->
-                    if (mess == null) return@collect
-                    val isManager = mess.managerId == currentUid
-                    val members = dashboardRepository.getMessMembers(mess)
-
+                val messId = user?.activeMessId
+                if (messId != null) {
+                    observeMess(messId, currentUid)
+                } else {
+                    cancelJobs()
                     _uiState.value = _uiState.value.copy(
-                        activeMess = mess,
-                        isManager = isManager,
-                        members = members
+                        isLoading = false,
+                        activeMess = null,
+                        meals = emptyList(),
+                        totalMeals = 0.0
                     )
-
-                    observeMealEntries(mess)
                 }
             }
         }
     }
 
+    private fun cancelJobs() {
+        messJob?.cancel()
+        mealJob?.cancel()
+    }
+
+    private fun observeMess(messId: String, currentUid: String) {
+        cancelJobs()
+        messJob = viewModelScope.launch {
+            messRepository.observeMess(messId).collect { mess ->
+                if (mess == null) {
+                    _uiState.value = _uiState.value.copy(isLoading = false, activeMess = null)
+                    return@collect
+                }
+                val isManager = mess.managerId == currentUid
+                val members = dashboardRepository.getMessMembers(mess)
+
+                _uiState.value = _uiState.value.copy(
+                    activeMess = mess,
+                    isManager = isManager,
+                    members = members
+                )
+
+                observeMealEntries(mess)
+            }
+        }
+    }
+
     private fun observeMealEntries(mess: Mess) {
-        viewModelScope.launch {
+        mealJob?.cancel()
+        mealJob = viewModelScope.launch {
             mealRepository.observeMeals(mess.id, mess.month, mess.year).collect { list ->
                 val totalCount = list.sumOf { it.count }
                 _uiState.value = _uiState.value.copy(

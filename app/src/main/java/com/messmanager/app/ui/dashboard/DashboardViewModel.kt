@@ -14,6 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -38,6 +39,10 @@ class DashboardViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState: StateFlow<DashboardUiState> = _uiState.asStateFlow()
 
+    private var messJob: Job? = null
+    private var settlementJob: Job? = null
+    private var groceriesJob: Job? = null
+
     init {
         loadDashboardData()
     }
@@ -52,16 +57,32 @@ class DashboardViewModel @Inject constructor(
                 if (activeMessId != null) {
                     observeMessData(activeMessId, currentUid)
                 } else {
-                    _uiState.value = _uiState.value.copy(isLoading = false)
+                    cancelJobs()
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        activeMess = null,
+                        settlement = null,
+                        recentGroceries = emptyList()
+                    )
                 }
             }
         }
     }
 
+    private fun cancelJobs() {
+        messJob?.cancel()
+        settlementJob?.cancel()
+        groceriesJob?.cancel()
+    }
+
     private fun observeMessData(messId: String, currentUid: String) {
-        viewModelScope.launch {
+        cancelJobs()
+        messJob = viewModelScope.launch {
             messRepository.observeMess(messId).collect { mess ->
-                if (mess == null) return@collect
+                if (mess == null) {
+                    _uiState.value = _uiState.value.copy(isLoading = false, activeMess = null)
+                    return@collect
+                }
                 val isManager = mess.managerId == currentUid
                 _uiState.value = _uiState.value.copy(
                     activeMess = mess,
@@ -78,7 +99,8 @@ class DashboardViewModel @Inject constructor(
     }
 
     private fun observeSettlement(mess: Mess) {
-        viewModelScope.launch {
+        settlementJob?.cancel()
+        settlementJob = viewModelScope.launch {
             dashboardRepository.observeMessSettlement(mess).collect { settlement ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
@@ -89,7 +111,8 @@ class DashboardViewModel @Inject constructor(
     }
 
     private fun observeRecentGroceries(mess: Mess) {
-        viewModelScope.launch {
+        groceriesJob?.cancel()
+        groceriesJob = viewModelScope.launch {
             groceryRepository.observeGroceries(mess.id, mess.month, mess.year).collect { list ->
                 _uiState.value = _uiState.value.copy(
                     recentGroceries = list.take(5) // Bottom section recent grocery

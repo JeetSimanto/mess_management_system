@@ -11,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -36,21 +37,26 @@ class AuthViewModel @Inject constructor(
         observeCurrentUser()
     }
 
+    private var activeMessJob: Job? = null
+
     private fun observeCurrentUser() {
         viewModelScope.launch {
             authRepository.observeCurrentUser().collect { user ->
                 _uiState.value = _uiState.value.copy(user = user)
-                if (user?.activeMessId != null) {
-                    observeActiveMess(user.activeMessId)
+                val activeMessId = user?.activeMessId
+                if (activeMessId != null) {
+                    observeActiveMess(activeMessId)
                 } else {
-                    _uiState.value = _uiState.value.copy(activeMess = null)
+                    activeMessJob?.cancel()
+                    _uiState.value = _uiState.value.copy(activeMess = null, isMessCreatedOrJoined = false)
                 }
             }
         }
     }
 
     private fun observeActiveMess(messId: String) {
-        viewModelScope.launch {
+        activeMessJob?.cancel()
+        activeMessJob = viewModelScope.launch {
             messRepository.observeMess(messId).collect { mess ->
                 _uiState.value = _uiState.value.copy(
                     activeMess = mess,

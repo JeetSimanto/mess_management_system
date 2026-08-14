@@ -13,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -37,6 +38,9 @@ class GroceryViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(GroceryUiState())
     val uiState: StateFlow<GroceryUiState> = _uiState.asStateFlow()
 
+    private var messJob: Job? = null
+    private var groceryJob: Job? = null
+
     init {
         loadGroceries()
     }
@@ -46,26 +50,52 @@ class GroceryViewModel @Inject constructor(
 
         viewModelScope.launch {
             authRepository.observeCurrentUser().collect { user ->
-                val messId = user?.activeMessId ?: return@collect
-                messRepository.observeMess(messId).collect { mess ->
-                    if (mess == null) return@collect
-                    val isManager = mess.managerId == currentUid
-                    val members = dashboardRepository.getMessMembers(mess)
-
+                val messId = user?.activeMessId
+                if (messId != null) {
+                    observeMess(messId, currentUid)
+                } else {
+                    cancelJobs()
                     _uiState.value = _uiState.value.copy(
-                        activeMess = mess,
-                        isManager = isManager,
-                        members = members
+                        isLoading = false,
+                        activeMess = null,
+                        groceries = emptyList(),
+                        totalGroceryPaisa = 0
                     )
-
-                    observeGroceryEntries(mess)
                 }
             }
         }
     }
 
+    private fun cancelJobs() {
+        messJob?.cancel()
+        groceryJob?.cancel()
+    }
+
+    private fun observeMess(messId: String, currentUid: String) {
+        cancelJobs()
+        messJob = viewModelScope.launch {
+            messRepository.observeMess(messId).collect { mess ->
+                if (mess == null) {
+                    _uiState.value = _uiState.value.copy(isLoading = false, activeMess = null)
+                    return@collect
+                }
+                val isManager = mess.managerId == currentUid
+                val members = dashboardRepository.getMessMembers(mess)
+
+                _uiState.value = _uiState.value.copy(
+                    activeMess = mess,
+                    isManager = isManager,
+                    members = members
+                )
+
+                observeGroceryEntries(mess)
+            }
+        }
+    }
+
     private fun observeGroceryEntries(mess: Mess) {
-        viewModelScope.launch {
+        groceryJob?.cancel()
+        groceryJob = viewModelScope.launch {
             groceryRepository.observeGroceries(mess.id, mess.month, mess.year).collect { list ->
                 val totalPaisa = list.sumOf { it.costPaisa }
                 _uiState.value = _uiState.value.copy(

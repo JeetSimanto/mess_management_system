@@ -11,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -33,6 +34,9 @@ class UtilityViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(UtilityUiState())
     val uiState: StateFlow<UtilityUiState> = _uiState.asStateFlow()
 
+    private var messJob: Job? = null
+    private var utilityJob: Job? = null
+
     init {
         loadUtilities()
     }
@@ -42,23 +46,49 @@ class UtilityViewModel @Inject constructor(
 
         viewModelScope.launch {
             authRepository.observeCurrentUser().collect { user ->
-                val messId = user?.activeMessId ?: return@collect
-                messRepository.observeMess(messId).collect { mess ->
-                    if (mess == null) return@collect
-                    val isManager = mess.managerId == currentUid
+                val messId = user?.activeMessId
+                if (messId != null) {
+                    observeMess(messId, currentUid)
+                } else {
+                    cancelJobs()
                     _uiState.value = _uiState.value.copy(
-                        activeMess = mess,
-                        isManager = isManager
+                        isLoading = false,
+                        activeMess = null,
+                        utilities = emptyList(),
+                        totalUtilityPaisa = 0
                     )
-
-                    observeUtilityEntries(mess)
                 }
             }
         }
     }
 
+    private fun cancelJobs() {
+        messJob?.cancel()
+        utilityJob?.cancel()
+    }
+
+    private fun observeMess(messId: String, currentUid: String) {
+        cancelJobs()
+        messJob = viewModelScope.launch {
+            messRepository.observeMess(messId).collect { mess ->
+                if (mess == null) {
+                    _uiState.value = _uiState.value.copy(isLoading = false, activeMess = null)
+                    return@collect
+                }
+                val isManager = mess.managerId == currentUid
+                _uiState.value = _uiState.value.copy(
+                    activeMess = mess,
+                    isManager = isManager
+                )
+
+                observeUtilityEntries(mess)
+            }
+        }
+    }
+
     private fun observeUtilityEntries(mess: Mess) {
-        viewModelScope.launch {
+        utilityJob?.cancel()
+        utilityJob = viewModelScope.launch {
             utilityRepository.observeUtilities(mess.id, mess.month, mess.year).collect { list ->
                 val totalPaisa = list.sumOf { it.costPaisa }
                 _uiState.value = _uiState.value.copy(

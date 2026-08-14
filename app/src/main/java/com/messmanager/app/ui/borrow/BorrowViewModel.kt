@@ -13,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -37,6 +38,9 @@ class BorrowViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(BorrowUiState())
     val uiState: StateFlow<BorrowUiState> = _uiState.asStateFlow()
 
+    private var messJob: Job? = null
+    private var borrowJob: Job? = null
+
     init {
         loadBorrows()
     }
@@ -47,26 +51,51 @@ class BorrowViewModel @Inject constructor(
 
         viewModelScope.launch {
             authRepository.observeCurrentUser().collect { user ->
-                val messId = user?.activeMessId ?: return@collect
-                messRepository.observeMess(messId).collect { mess ->
-                    if (mess == null) return@collect
-                    val isManager = mess.managerId == currentUid
-                    val members = dashboardRepository.getMessMembers(mess)
-
+                val messId = user?.activeMessId
+                if (messId != null) {
+                    observeMess(messId, currentUid)
+                } else {
+                    cancelJobs()
                     _uiState.value = _uiState.value.copy(
-                        activeMess = mess,
-                        isManager = isManager,
-                        members = members
+                        isLoading = false,
+                        activeMess = null,
+                        borrowRequests = emptyList()
                     )
-
-                    observeBorrowRequests(mess.id)
                 }
             }
         }
     }
 
+    private fun cancelJobs() {
+        messJob?.cancel()
+        borrowJob?.cancel()
+    }
+
+    private fun observeMess(messId: String, currentUid: String) {
+        cancelJobs()
+        messJob = viewModelScope.launch {
+            messRepository.observeMess(messId).collect { mess ->
+                if (mess == null) {
+                    _uiState.value = _uiState.value.copy(isLoading = false, activeMess = null)
+                    return@collect
+                }
+                val isManager = mess.managerId == currentUid
+                val members = dashboardRepository.getMessMembers(mess)
+
+                _uiState.value = _uiState.value.copy(
+                    activeMess = mess,
+                    isManager = isManager,
+                    members = members
+                )
+
+                observeBorrowRequests(mess.id)
+            }
+        }
+    }
+
     private fun observeBorrowRequests(messId: String) {
-        viewModelScope.launch {
+        borrowJob?.cancel()
+        borrowJob = viewModelScope.launch {
             borrowRepository.observeBorrows(messId).collect { list ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
