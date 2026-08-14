@@ -7,7 +7,7 @@
 [![Firebase](https://img.shields.io/badge/Backend-Firebase-FFCA28?logo=firebase)](https://firebase.google.com/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A modern, high-performance, dark-themed Android app for effortless shared bachelor mess management in Bangladesh. Track daily groceries, utility bills, individual meal counts, cash deposits, physical item borrowings, and real-time financial settlements.
+A modern, high-performance, dark-themed Android app for effortless shared bachelor mess management in Bangladesh. Track daily groceries, utility bills, individual meal counts, cash deposits, physical item borrowings, multi-mess switching, and real-time financial settlements.
 
 ---
 
@@ -15,53 +15,56 @@ A modern, high-performance, dark-themed Android app for effortless shared bachel
 
 Click the button below to download the latest compiled Android APK directly:
 
-[<img src="https://img.shields.io/badge/Download_Latest_APK-v1.0.0-00E5A0?style=for-the-badge&logo=android&logoColor=black" height="50">](https://github.com/JeetSimanto/mess_management_system/releases/latest)
+[<img src="https://img.shields.io/badge/Download_Latest_APK-v1.2.4-00E5A0?style=for-the-badge&logo=android&logoColor=black" height="50">](https://github.com/JeetSimanto/mess_management_system/releases/latest)
 
-> 💡 **Auto-Update Enabled**: Once installed, the app automatically checks for new GitHub releases on launch and notifies you whenever a new version is pushed!
+> 💡 **Auto-Update Enabled**: Once installed, the app automatically checks for new GitHub releases on launch and includes a **Quick Check Update** option in Settings so you never miss an update!
 
 ---
 
-## ✨ Features at a Glance
+## ✨ Key Features & Improvements (v1.2.4)
 
-### 📊 Role-Tailored Dashboards
-- **Member View**: 
+### 🏢 Multi-Mess Management & Instant Switching
+- **Create, Join, and Switch**: Users can easily create new messes, join existing ones via 6-character invite codes, and switch between active messes directly from **Settings**.
+
+### 📊 Role-Tailored Dashboards & Settlement Dialogs
+- **Member View**:
   - 2 Circular Stat Widgets displaying **My Meals** and **My Contribution**.
-  - Real-time **Manager's Fund Balance (Money Remains)** card showing cash reserve in manager's hands.
-  - Recent 5 grocery purchases list at the bottom.
+  - Real-time **Manager's Fund Balance (Money Remains)** card showing total cash reserve.
+  - Recent 5 grocery purchases list.
 - **Manager View**:
   - Hero Total Expense Card (Grocery vs. Utility breakdown).
   - 4 Key Metric Chips: **Meal Rate (৳/meal)**, **Active Members**, **Total Meals**, **Fund Balance**.
-  - Complete Member Settlement Status Table (Get Back / Pay Extra / Settled).
+  - **Settlement Breakdown Dialog**: Granular member financial balance list (`GET` / `PAY` / `SETTLED`) with clean, absolute currency formatting.
+
+### 🍱 Interactive Tabular Meal Grid (`MealCalendarGrid`)
+- **Fractional Precision**: Clean display of meal counts as fractions (`½`, `1`, `1½`, `2`, `2½`, `3`) instead of raw decimals.
+- **Transposed Grid & Sticky Headers**: Sticky top header for member columns with synchronized horizontal and vertical scrolling across dates.
+- **Tactile Feedback & Color Density**: Spring press micro-animations with dense green color coding based on consumption levels.
 
 ### 🛒 Grocery & Shared Utility Tracking
 - Track item name, quantity, unit, cost in BDT (৳), buyer, date, and custom notes.
-- Utility bill categories: House Rent, Electricity, Gas, Water, Waste, Transport, WiFi, and Other.
-- Automatic equal utility sharing among all active members.
-
-### 🍱 Meal Tracker & Precision Grid
-- 0 to 3.0 meals per day with 0.5 step precision (0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0).
-- Scrollable calendar grid of dates x members with tap-to-cycle updating for managers.
+- Utility categories: House Rent, Electricity, Gas, Water, Waste, Transport, WiFi, and Custom.
+- Equal utility split calculation among all active members.
 
 ### 📦 Zero-Cost Physical Item Borrow System
-- Members can send borrow requests for physical items from manager (e.g. Eggs, Oil, Salt).
-- **Strict Return Policy**: Manager sets due dates on approval. No financial coupling.
-- **Daily Reminders**: Automated FCM push notifications remind members daily until items are marked returned.
-  > *"The manager will not accept any money, what you have borrowed needs to be returned in the given time period."*
+- Send and manage physical item borrow requests (e.g. Eggs, Oil, Salt).
+- **Strict Return Policy**: Due dates set on approval with automated FCM daily reminder notifications.
 
-### ⚙️ Mess Management & Invite System
-- 6-character uppercase invite code generation.
-- Role transfer (Manager to Member), member removal, and active mess exit support.
+### 🎨 Carbon Mint Dark Theme & High-Contrast White Typography
+- OLED dark backgrounds (`#0A0E14`, `#141B22`) paired with **pure white typography (`#FFFFFF`)** for crisp readability.
+- Richer, denser green (`#00E5A0`) and amber (`#FFB547`) accent fields.
 
 ---
 
 ## 🖼️ Visual Tutorial & How to Use
 
 ### 1️⃣ Sign In & Mess Setup
-- Sign in securely using **Google One-Tap Authentication**.
-- **Create a New Mess** by choosing Mess Name, Month, and Year, or **Join an Existing Mess** using a 6-digit invite code.
+- Sign in securely using **Google Authentication**.
+- **Create a New Mess** or **Join an Existing Mess** using a 6-character invite code.
+- Switch between active messes anytime from **Settings**.
 
 ```
-[ Welcome Screen ] ──> [ Google Auth ] ──> [ Create / Join Mess ] ──> [ Dashboard ]
+[ Welcome Screen ] ──> [ Google Auth ] ──> [ Create / Join / Switch Mess ] ──> [ Dashboard ]
 ```
 
 ### 2️⃣ Daily Operations Workflow
@@ -71,22 +74,20 @@ Click the button below to download the latest compiled Android APK directly:
 | **Record Grocery** | Manager | Tap `+` FAB on Grocery Tab -> Enter item, cost (৳), buyer -> Save |
 | **Record Utility** | Manager | Tap `+` FAB on Utility Tab -> Select Category (Rent/Wifi/etc.) -> Save |
 | **Log Meals** | Manager | Tap cell in Meal Grid -> Cycle counts (0 -> 1 -> 2 -> 3 -> 0.5...) |
-| **Record Cash Deposit**| Manager | Tap `+` FAB on Contributions Tab -> Select Member & Amount -> Save |
+| **Record Deposit**| Manager | Tap `+` FAB on Deposits Tab -> Select Member & Amount -> Save |
 | **Borrow Item** | Member | Open Top Bar Borrow Icon -> Send Request (Item & Quantity) |
-| **Approve Borrow** | Manager | Open Borrows -> Tap Accept -> Set Return Due Date |
+| **Check Updates** | Everyone| Open Settings -> Tap "Quick check update" |
 
 ---
 
 ## 🛠️ Architecture & Tech Stack
 
-- **Architecture**: Clean Architecture + MVVM + Unidirectional Data Flow (StateFlow)
-- **Language**: Kotlin 1.9.22
-- **UI Framework**: Jetpack Compose + Material 3 (Carbon Mint OLED Theme)
+- **Architecture**: Clean Architecture + MVVM + Unidirectional Data Flow (`StateFlow`)
+- **Language**: Kotlin 1.9.22 (`compileSdk 35`, `targetSdk 35`)
+- **UI Framework**: Jetpack Compose + Material 3 (Carbon Mint Dark Theme)
 - **Dependency Injection**: Hilt (Dagger)
-- **Asynchronous**: Kotlin Coroutines & Flow
-- **Backend & Database**: Firebase Auth, Cloud Firestore, Firebase Messaging (FCM)
-- **Scheduled Tasks**: Firebase Cloud Functions (Node.js) & Pub/Sub Cron
-- **CI/CD**: GitHub Actions (Auto APK Compilation & GitHub Release Publish)
+- **Backend & Database**: Firebase Auth, Cloud Firestore, Firebase Cloud Messaging (FCM)
+- **CI/CD**: GitHub Actions (Automated APK Compilation & Release Tag Publishing)
 
 ---
 
@@ -97,9 +98,9 @@ Click the button below to download the latest compiled Android APK directly:
    git clone https://github.com/JeetSimanto/mess_management_system.git
    cd mess_management_system
    ```
-2. **Open in Android Studio** (Hedgehog or newer).
+2. **Open in Android Studio** (Ladybug or newer).
 3. **Gradle Sync**: Let Gradle download dependencies listed in `gradle/libs.versions.toml`.
-4. **Firebase Configuration**: Ensure `google-services.json` is placed in `app/`.
+4. **Firebase Setup**: Ensure your `google-services.json` is placed in the `app/` directory.
 5. **Run the App**: Connect your Android device or emulator and press **Run (Shift + F10)**.
 
 ---
