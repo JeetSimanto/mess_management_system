@@ -257,19 +257,22 @@ fun MealTrackerScreen(
             MemberMealCalendarView(
                 member = currentMember,
                 meals = uiState.meals,
-                month = activeMess.month,
-                year = activeMess.year,
+                month = uiState.displayedMonth,
+                year = uiState.displayedYear,
                 isManager = uiState.isManager,
                 onMealClick = { memberUid, memberName, dateIso, nextCount ->
                     viewModel.setMealCount(memberUid, memberName, dateIso, nextCount)
+                },
+                onMonthChange = { delta ->
+                    viewModel.changeMonth(delta)
                 }
             )
         } else {
             MealCalendarGrid(
                 members = uiState.members,
                 meals = uiState.meals,
-                month = activeMess.month,
-                year = activeMess.year,
+                month = uiState.displayedMonth,
+                year = uiState.displayedYear,
                 isManager = uiState.isManager,
                 onMealClick = { memberUid, memberName, dateIso, nextCount ->
                     viewModel.setMealCount(memberUid, memberName, dateIso, nextCount)

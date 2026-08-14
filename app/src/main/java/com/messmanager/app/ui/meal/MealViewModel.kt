@@ -26,6 +26,8 @@ data class MealUiState(
     val members: List<Member> = emptyList(),
     val meals: List<Meal> = emptyList(),
     val totalMeals: Double = 0.0,
+    val displayedMonth: Int = LocalDate.now().monthValue,
+    val displayedYear: Int = LocalDate.now().year,
     val selectedDate: LocalDate = LocalDate.now(),
     val error: String? = null
 )
@@ -86,21 +88,26 @@ class MealViewModel @Inject constructor(
                 val isManager = mess.managerId == currentUid
                 val members = dashboardRepository.getMessMembers(mess)
 
+                val activeMonth = if (_uiState.value.displayedMonth == LocalDate.now().monthValue && _uiState.value.displayedYear == LocalDate.now().year) mess.month else _uiState.value.displayedMonth
+                val activeYear = if (_uiState.value.displayedMonth == LocalDate.now().monthValue && _uiState.value.displayedYear == LocalDate.now().year) mess.year else _uiState.value.displayedYear
+
                 _uiState.value = _uiState.value.copy(
                     activeMess = mess,
                     isManager = isManager,
-                    members = members
+                    members = members,
+                    displayedMonth = activeMonth,
+                    displayedYear = activeYear
                 )
 
-                observeMealEntries(mess)
+                observeMealEntries(mess.id, activeMonth, activeYear)
             }
         }
     }
 
-    private fun observeMealEntries(mess: Mess) {
+    private fun observeMealEntries(messId: String, month: Int, year: Int) {
         mealJob?.cancel()
         mealJob = viewModelScope.launch {
-            mealRepository.observeMeals(mess.id, mess.month, mess.year).collect { list ->
+            mealRepository.observeMeals(messId, month, year).collect { list ->
                 val totalCount = list.sumOf { it.count }
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
@@ -111,6 +118,21 @@ class MealViewModel @Inject constructor(
         }
     }
 
+    fun changeMonth(delta: Int) {
+        val mess = _uiState.value.activeMess ?: return
+        var newMonth = _uiState.value.displayedMonth + delta
+        var newYear = _uiState.value.displayedYear
+        if (newMonth < 1) {
+            newMonth = 12
+            newYear -= 1
+        } else if (newMonth > 12) {
+            newMonth = 1
+            newYear += 1
+        }
+        _uiState.value = _uiState.value.copy(displayedMonth = newMonth, displayedYear = newYear)
+        observeMealEntries(mess.id, newMonth, newYear)
+    }
+
     fun setMealCount(memberUid: String, memberName: String, dateIso: String, count: Double) {
         val mess = _uiState.value.activeMess ?: return
         viewModelScope.launch {
@@ -119,8 +141,8 @@ class MealViewModel @Inject constructor(
                 memberName = memberName,
                 date = dateIso,
                 count = count,
-                month = mess.month,
-                year = mess.year
+                month = _uiState.value.displayedMonth,
+                year = _uiState.value.displayedYear
             )
             val result = mealRepository.setMeal(mess.id, meal)
             result.onFailure { e ->
