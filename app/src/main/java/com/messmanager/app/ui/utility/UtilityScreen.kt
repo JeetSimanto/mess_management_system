@@ -109,42 +109,11 @@ fun UtilityScreen(
                     .background(DarkPrimaryGlow)
                     .padding(20.dp)
             ) {
-                Column {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "TOTAL UTILITY BILLS",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = DarkPrimary,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ReceiptLong,
-                            contentDescription = null,
-                            tint = DarkPrimary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = CurrencyFormatter.formatPaisa(uiState.totalUtilityPaisa),
-                        style = CurrencyHeroStyle,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = "Split equally among all mess members",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                Text(
+                    text = CurrencyFormatter.formatPaisa(uiState.totalUtilityPaisa),
+                    style = CurrencyHeroStyle,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
