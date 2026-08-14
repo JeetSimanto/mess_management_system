@@ -20,6 +20,7 @@ import javax.inject.Inject
 
 data class MealUiState(
     val isLoading: Boolean = true,
+    val currentUserId: String = "",
     val activeMess: Mess? = null,
     val isManager: Boolean = false,
     val members: List<Member> = emptyList(),
@@ -49,6 +50,7 @@ class MealViewModel @Inject constructor(
 
     private fun loadMeals() {
         val currentUid = authRepository.currentUserId ?: return
+        _uiState.value = _uiState.value.copy(currentUserId = currentUid)
 
         viewModelScope.launch {
             authRepository.observeCurrentUser().collect { user ->
