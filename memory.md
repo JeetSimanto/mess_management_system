@@ -8,8 +8,8 @@
 | Field | Value |
 |-------|-------|
 | **Current Phase** | Multi-Mess & Production Release |
-| **App Version** | `1.2.2` (Version Code 17) |
-| **Status** | 🟢 Production Ready — Full Mipmap Density & Adaptive Icon Tree (`1786590497726.png`) |
+| **App Version** | `1.2.3` (Version Code 18) |
+| **Status** | 🟢 Production Ready — High-Contrast Pure White Typography (`Color.White`) |
 | **Last Updated** | 2026-08-13T23:38:00+06:00 |
 | **Started** | 2026-08-02 |
 
