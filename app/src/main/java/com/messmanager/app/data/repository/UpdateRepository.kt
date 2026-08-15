@@ -1,10 +1,14 @@
 package com.messmanager.app.data.repository
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import androidx.core.content.FileProvider
 import com.messmanager.app.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
 import javax.inject.Inject
@@ -63,6 +67,90 @@ class UpdateRepository @Inject constructor() {
             }
         } catch (e: Exception) {
             UpdateInfo(false, "", "", "")
+        }
+    }
+
+    suspend fun downloadApk(
+        context: Context,
+        downloadUrl: String,
+        onProgress: (progress: Int, downloadedBytes: Long, totalBytes: Long) -> Unit
+    ): File? = withContext(Dispatchers.IO) {
+        try {
+            val updatesDir = File(context.cacheDir, "updates").apply { if (!exists()) mkdirs() }
+            updatesDir.listFiles()?.forEach { it.delete() }
+            val apkFile = File(updatesDir, "update.apk")
+
+            var currentUrl = downloadUrl
+            var connection: HttpURLConnection
+            var redirectCount = 0
+
+            while (redirectCount < 6) {
+                val url = URL(currentUrl)
+                connection = url.openConnection() as HttpURLConnection
+                connection.requestMethod = "GET"
+                connection.setRequestProperty("User-Agent", "MessManagerApp/1.0")
+                connection.connectTimeout = 15000
+                connection.readTimeout = 15000
+                connection.instanceFollowRedirects = true
+
+                val status = connection.responseCode
+                if (status == HttpURLConnection.HTTP_MOVED_TEMP || 
+                    status == HttpURLConnection.HTTP_MOVED_PERM || 
+                    status == 307 || 
+                    status == 308) {
+                    val newUrl = connection.getHeaderField("Location")
+                    if (!newUrl.isNullOrEmpty()) {
+                        currentUrl = newUrl
+                        redirectCount++
+                        continue
+                    }
+                }
+
+                if (status != HttpURLConnection.HTTP_OK) {
+                    return@withContext null
+                }
+
+                val totalBytes = connection.contentLengthLong
+                val inputStream = connection.inputStream
+                val outputStream = apkFile.outputStream()
+
+                val buffer = ByteArray(8192)
+                var bytesRead: Int
+                var totalDownloaded: Long = 0
+
+                while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                    outputStream.write(buffer, 0, bytesRead)
+                    totalDownloaded += bytesRead
+                    val progress = if (totalBytes > 0) ((totalDownloaded * 100) / totalBytes).toInt() else 0
+                    onProgress(progress, totalDownloaded, totalBytes)
+                }
+
+                outputStream.flush()
+                outputStream.close()
+                inputStream.close()
+                return@withContext apkFile
+            }
+            null
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    fun installApk(context: Context, apkFile: File) {
+        try {
+            val uri: Uri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                apkFile
+            )
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, "application/vnd.android.package-archive")
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+            }
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

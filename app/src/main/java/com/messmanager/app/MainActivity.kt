@@ -82,6 +82,7 @@ class MainActivity : ComponentActivity() {
                     updateInfoState?.let { info ->
                         UpdateDialog(
                             updateInfo = info,
+                            updateRepository = updateRepository,
                             onDismiss = {
                                 updateRepository.dismissVersion(this@MainActivity, info.latestVersion)
                                 updateInfoState = null
