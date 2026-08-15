@@ -51,6 +51,7 @@ import com.messmanager.app.ui.theme.DarkSurfaceHigh
 import com.messmanager.app.ui.theme.DarkTertiary
 import com.messmanager.app.ui.theme.RadiusLg
 import com.messmanager.app.ui.theme.RadiusSm
+import androidx.compose.ui.unit.sp
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
@@ -91,6 +92,12 @@ fun MemberMealCalendarView(
 
     val monthName = yearMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
 
+    val monthStr = if (month < 10) "0$month" else "$month"
+    val dayStr = if (selectedDay < 10) "0$selectedDay" else "$selectedDay"
+    val selectedDateIso = "$year-$monthStr-$dayStr"
+    val currentMealDoc = meals.find { it.memberUid == member.uid && it.date == selectedDateIso }
+    val countForSelectedDay = currentMealDoc?.count ?: 0.0
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -99,7 +106,7 @@ fun MemberMealCalendarView(
             .border(BorderStroke(1.dp, DarkOutline), RoundedCornerShape(20.dp))
             .padding(16.dp)
     ) {
-        // Month & Year Header (Clean, centered month title without < and > buttons)
+        // Month & Year Header (Clean, centered month title with top-right selected day meal circle)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -117,6 +124,30 @@ fun MemberMealCalendarView(
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
+
+            // Top Right Circle: Selected Day Meal Count
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .size(46.dp)
+                    .clip(CircleShape)
+                    .background(DarkPrimaryGlow)
+                    .border(BorderStroke(1.5.dp, DarkPrimary), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = formatCountDisplay(countForSelectedDay),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = DarkPrimary
+                    )
+                    Text(
+                        text = "meals",
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 8.sp, fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
 
@@ -253,12 +284,6 @@ fun MemberMealCalendarView(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Selected Day Details & Interactive Meal Logging Controls
-        val monthStr = if (month < 10) "0$month" else "$month"
-        val dayStr = if (selectedDay < 10) "0$selectedDay" else "$selectedDay"
-        val selectedDateIso = "$year-$monthStr-$dayStr"
-        val currentMealDoc = meals.find { it.memberUid == member.uid && it.date == selectedDateIso }
-        val countForSelectedDay = currentMealDoc?.count ?: 0.0
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()
