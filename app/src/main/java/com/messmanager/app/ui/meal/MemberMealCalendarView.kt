@@ -126,13 +126,13 @@ fun MemberMealCalendarView(
                 )
             }
 
-            // Top Right Circle: Selected Day Meal Count (Clean circle badge displaying ONLY number)
+            // Top Right Circle: Selected Day Meal Count (White background, Black text, Green border)
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .size(42.dp)
                     .clip(CircleShape)
-                    .background(DarkPrimaryGlow.copy(alpha = 0.2f))
+                    .background(Color.White)
                     .border(BorderStroke(1.5.dp, DarkPrimary), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
@@ -142,7 +142,7 @@ fun MemberMealCalendarView(
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
                     ),
-                    color = DarkPrimary
+                    color = Color.Black
                 )
             }
         }
