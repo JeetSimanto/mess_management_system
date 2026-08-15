@@ -19,6 +19,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
@@ -29,15 +31,20 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,18 +53,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.messmanager.app.domain.model.Grocery
+import com.messmanager.app.domain.model.Member
+import com.messmanager.app.ui.components.appTextFieldColors
 import com.messmanager.app.ui.theme.AvatarColors
 import com.messmanager.app.ui.theme.CurrencyHeroStyle
 import com.messmanager.app.ui.theme.DarkBackground
 import com.messmanager.app.ui.theme.DarkOutline
 import com.messmanager.app.ui.theme.DarkPrimary
 import com.messmanager.app.ui.theme.DarkPrimaryGlow
-import com.messmanager.app.ui.theme.DarkSecondary
 import com.messmanager.app.ui.theme.DarkSurface
 import com.messmanager.app.ui.theme.DarkSurfaceHigh
 import com.messmanager.app.ui.theme.PositiveDark
@@ -87,193 +101,409 @@ fun GroceryScreen(
         return
     }
 
-    Scaffold(
-        floatingActionButton = {
-            if (uiState.isManager) {
-                FloatingActionButton(
-                    onClick = {
-                        selectedGroceryForEdit = null
-                        showSheet = true
-                    },
-                    containerColor = DarkSecondary,
-                    contentColor = MaterialTheme.colorScheme.background
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(16.dp)
+    ) {
+        // Total Header Card
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(20.dp))
+                .background(DarkPrimaryGlow.copy(alpha = 0.35f))
+                .border(BorderStroke(1.dp, DarkPrimary.copy(alpha = 0.35f)), RoundedCornerShape(20.dp))
+                .padding(20.dp)
+        ) {
+            Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = "Add Grocery")
+                    Text(
+                        text = "TOTAL GROCERY EXPENSE",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = DarkPrimary,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Icon(
+                        imageVector = Icons.Default.ShoppingCart,
+                        contentDescription = null,
+                        tint = DarkPrimary,
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = CurrencyFormatter.formatPaisa(uiState.totalGroceryPaisa),
+                    style = CurrencyHeroStyle,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = "${uiState.groceries.size} entries recorded this month",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
-    ) { padding ->
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(padding)
-                .padding(16.dp)
-        ) {
-            // Total Header Card
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        // Manager Inline Action Field Card
+        if (uiState.isManager) {
+            InlineGroceryActionCard(
+                members = uiState.members,
+                onAddGrocery = { itemName, costPaisa, buyerUid, buyerName ->
+                    viewModel.addGrocery(
+                        itemName = itemName,
+                        quantity = 1.0,
+                        unit = "pcs",
+                        costPaisa = costPaisa,
+                        buyerUid = buyerUid,
+                        buyerName = buyerName,
+                        date = DateUtils.todayIso(),
+                        note = ""
+                    )
+                }
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+        }
+
+        // Groceries List Section
+        if (uiState.groceries.isEmpty()) {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(DarkPrimaryGlow.copy(alpha = 0.35f))
-                    .border(BorderStroke(1.dp, DarkPrimary.copy(alpha = 0.35f)), RoundedCornerShape(20.dp))
-                    .padding(20.dp)
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
             ) {
-                Column {
+                Text("No grocery entries recorded yet.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(DarkSurface)
+                    .border(BorderStroke(1.dp, DarkOutline), RoundedCornerShape(20.dp))
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                itemsIndexed(uiState.groceries, key = { _, item -> item.id }) { index, grocery ->
+                    val buyerColor = AvatarColors[index % AvatarColors.size]
+
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(RadiusLg))
+                            .background(DarkSurfaceHigh)
+                            .clickable {
+                                selectedGroceryForDetail = grocery
+                            }
+                            .padding(horizontal = 14.dp, vertical = 14.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = "TOTAL GROCERY EXPENSE",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = DarkPrimary,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Icon(
-                            imageVector = Icons.Default.ShoppingCart,
-                            contentDescription = null,
-                            tint = DarkPrimary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = CurrencyFormatter.formatPaisa(uiState.totalGroceryPaisa),
-                        style = CurrencyHeroStyle,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = "${uiState.groceries.size} entries recorded this month",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (uiState.groceries.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("No grocery entries recorded yet.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(DarkSurface)
-                        .border(BorderStroke(1.dp, DarkOutline), RoundedCornerShape(20.dp))
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    itemsIndexed(uiState.groceries, key = { _, item -> item.id }) { index, grocery ->
-                        val buyerColor = AvatarColors[index % AvatarColors.size]
-
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(RadiusLg))
-                                .background(DarkSurfaceHigh)
-                                .clickable {
-                                    selectedGroceryForDetail = grocery
-                                }
-                                .padding(horizontal = 14.dp, vertical = 14.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.weight(1f),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(
-                                modifier = Modifier.weight(1f),
-                                verticalAlignment = Alignment.CenterVertically
+                            // Buyer Avatar Initial Circle
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .background(buyerColor.copy(alpha = 0.2f)),
+                                contentAlignment = Alignment.Center
                             ) {
-                                // Buyer Avatar Initial Circle
-                                Box(
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .clip(CircleShape)
-                                        .background(buyerColor.copy(alpha = 0.2f)),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = grocery.buyerName.take(1).uppercase(),
-                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                        color = buyerColor
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.width(12.dp))
-
                                 Text(
-                                    text = grocery.itemName,
-                                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    text = grocery.buyerName.take(1).uppercase(),
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = buyerColor
                                 )
                             }
 
+                            Spacer(modifier = Modifier.width(12.dp))
+
                             Text(
-                                text = CurrencyFormatter.formatPaisa(grocery.costPaisa),
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                color = DarkPrimary
+                                text = grocery.itemName,
+                                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
+
+                        Text(
+                            text = CurrencyFormatter.formatPaisa(grocery.costPaisa),
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            color = DarkPrimary
+                        )
                     }
                 }
             }
         }
+    }
 
-        // Grocery Premium Details Modal Popup
-        selectedGroceryForDetail?.let { grocery ->
-            GroceryDetailModal(
-                grocery = grocery,
-                isManager = uiState.isManager,
-                onDismiss = { selectedGroceryForDetail = null },
-                onEdit = {
-                    selectedGroceryForDetail = null
-                    selectedGroceryForEdit = grocery
-                    showSheet = true
-                },
-                onDelete = {
-                    selectedGroceryForDetail = null
-                    viewModel.deleteGrocery(grocery.id)
-                }
-            )
-        }
+    // Grocery Premium Details Modal Popup
+    selectedGroceryForDetail?.let { grocery ->
+        GroceryDetailModal(
+            grocery = grocery,
+            isManager = uiState.isManager,
+            onDismiss = { selectedGroceryForDetail = null },
+            onEdit = {
+                selectedGroceryForDetail = null
+                selectedGroceryForEdit = grocery
+                showSheet = true
+            },
+            onDelete = {
+                selectedGroceryForDetail = null
+                viewModel.deleteGrocery(grocery.id)
+            }
+        )
+    }
 
-        // Add/Edit Form Sheet
-        if (showSheet) {
-            GroceryFormSheet(
-                members = uiState.members,
-                existingGrocery = selectedGroceryForEdit,
-                onSave = { itemName, quantity, unit, costPaisa, buyerUid, buyerName, date, note ->
-                    if (selectedGroceryForEdit == null) {
-                        viewModel.addGrocery(itemName, quantity, unit, costPaisa, buyerUid, buyerName, date, note)
-                    } else {
-                        viewModel.updateGrocery(
-                            selectedGroceryForEdit!!.copy(
-                                itemName = itemName,
-                                quantity = quantity,
-                                unit = unit,
-                                costPaisa = costPaisa,
-                                buyerUid = buyerUid,
-                                buyerName = buyerName,
-                                date = date,
-                                note = note
-                            )
+    // Edit Form Sheet
+    if (showSheet) {
+        GroceryFormSheet(
+            members = uiState.members,
+            existingGrocery = selectedGroceryForEdit,
+            onSave = { itemName, quantity, unit, costPaisa, buyerUid, buyerName, date, note ->
+                if (selectedGroceryForEdit == null) {
+                    viewModel.addGrocery(itemName, quantity, unit, costPaisa, buyerUid, buyerName, date, note)
+                } else {
+                    viewModel.updateGrocery(
+                        selectedGroceryForEdit!!.copy(
+                            itemName = itemName,
+                            quantity = quantity,
+                            unit = unit,
+                            costPaisa = costPaisa,
+                            buyerUid = buyerUid,
+                            buyerName = buyerName,
+                            date = date,
+                            note = note
                         )
-                    }
-                    showSheet = false
-                },
-                onDismiss = { showSheet = false }
+                    )
+                }
+                showSheet = false
+            },
+            onDismiss = { showSheet = false }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun InlineGroceryActionCard(
+    members: List<Member>,
+    onAddGrocery: (itemName: String, costPaisa: Long, buyerUid: String, buyerName: String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var itemName by remember { mutableStateOf("") }
+    var costText by remember { mutableStateOf("") }
+    var selectedBuyer by remember { mutableStateOf(members.firstOrNull()) }
+    var buyerExpanded by remember { mutableStateOf(false) }
+
+    val focusManager = LocalFocusManager.current
+    val costFocusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(members) {
+        if (selectedBuyer == null && members.isNotEmpty()) {
+            selectedBuyer = members.firstOrNull()
+        }
+    }
+
+    val submitAction = {
+        val costBdt = costText.toDoubleOrNull() ?: 0.0
+        val costPaisa = CurrencyFormatter.bdtToPaisa(costBdt)
+        val buyer = selectedBuyer
+
+        if (itemName.isNotBlank() && costPaisa > 0 && buyer != null) {
+            onAddGrocery(
+                itemName.trim(),
+                costPaisa,
+                buyer.uid,
+                buyer.displayName
             )
+            itemName = ""
+            costText = ""
+            focusManager.clearFocus()
+        }
+    }
+
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(DarkSurface)
+            .border(BorderStroke(1.dp, DarkOutline), RoundedCornerShape(20.dp)),
+        color = DarkSurface
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Card Header Title
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clip(CircleShape)
+                        .background(DarkPrimaryGlow),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        tint = DarkPrimary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+
+                Text(
+                    text = "ADD GROCERY ENTRY",
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = androidx.compose.ui.unit.TextUnit(1.2f, androidx.compose.ui.unit.TextUnitType.Sp)
+                    ),
+                    color = DarkPrimary
+                )
+            }
+
+            // Input Fields Row: Item Name & Cost
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                // Item Name Field
+                Column(modifier = Modifier.weight(1.4f)) {
+                    Text(
+                        text = "Item Name",
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    OutlinedTextField(
+                        value = itemName,
+                        onValueChange = { itemName = it },
+                        placeholder = { Text("e.g. Rice, Eggs, Oil", fontSize = 13.sp) },
+                        singleLine = true,
+                        colors = appTextFieldColors(),
+                        shape = RoundedCornerShape(RadiusSm),
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onNext = { costFocusRequester.requestFocus() }
+                        )
+                    )
+                }
+
+                // Cost Field
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Cost (৳)",
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    OutlinedTextField(
+                        value = costText,
+                        onValueChange = { costText = it },
+                        placeholder = { Text("650", fontSize = 13.sp) },
+                        singleLine = true,
+                        colors = appTextFieldColors(),
+                        shape = RoundedCornerShape(RadiusSm),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(costFocusRequester),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = { submitAction() }
+                        )
+                    )
+                }
+            }
+
+            // Buyer Selector & Add Entry Button Row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.Bottom
+            ) {
+                // Buyer Dropdown
+                Column(modifier = Modifier.weight(1.3f)) {
+                    Text(
+                        text = "Bought By",
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    ExposedDropdownMenuBox(
+                        expanded = buyerExpanded,
+                        onExpandedChange = { buyerExpanded = !buyerExpanded },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        OutlinedTextField(
+                            value = selectedBuyer?.displayName ?: "Select Member",
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = buyerExpanded) },
+                            colors = appTextFieldColors(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                            shape = RoundedCornerShape(RadiusSm)
+                        )
+                        ExposedDropdownMenu(
+                            expanded = buyerExpanded,
+                            onDismissRequest = { buyerExpanded = false }
+                        ) {
+                            members.forEach { m ->
+                                DropdownMenuItem(
+                                    text = { Text(m.displayName) },
+                                    onClick = {
+                                        selectedBuyer = m
+                                        buyerExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Add Entry Button
+                Button(
+                    onClick = { submitAction() },
+                    enabled = itemName.isNotBlank() && costText.isNotBlank() && selectedBuyer != null,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(50.dp),
+                    shape = RoundedCornerShape(RadiusSm),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = DarkPrimary,
+                        contentColor = DarkBackground,
+                        disabledContainerColor = DarkSurfaceHigh,
+                        disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                ) {
+                    Text(
+                        text = "Add Entry",
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
+            }
         }
     }
 }
