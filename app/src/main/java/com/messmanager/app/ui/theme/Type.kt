@@ -40,6 +40,10 @@ val SpaceGroteskFontFamily = FontFamily(
     Font(googleFont = SpaceGroteskFont, fontProvider = provider, weight = FontWeight.Bold)
 )
 
+val MilkerFontFamily = FontFamily(
+    androidx.compose.ui.text.font.Font(R.font.milker)
+)
+
 val Typography = Typography(
     displayLarge = TextStyle(
         fontFamily = OutfitFontFamily,
