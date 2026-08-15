@@ -112,21 +112,28 @@ class GroceryViewModel @Inject constructor(
         quantity: Double,
         unit: String,
         costPaisa: Long,
-        buyerUid: String,
-        buyerName: String,
-        date: String,
-        note: String
+        buyerUid: String = "",
+        buyerName: String = "",
+        date: String = "",
+        note: String = ""
     ) {
         val mess = _uiState.value.activeMess ?: return
+        val currentUid = authRepository.currentUserId ?: ""
+        val currentMember = _uiState.value.members.find { it.uid == currentUid }
+
+        val finalBuyerUid = if (buyerUid.isNotBlank()) buyerUid else currentUid
+        val finalBuyerName = if (buyerName.isNotBlank()) buyerName else (currentMember?.displayName ?: "Manager")
+        val finalDate = if (date.isNotBlank()) date else com.messmanager.app.util.DateUtils.todayIso()
+
         viewModelScope.launch {
             val grocery = Grocery(
                 itemName = itemName,
                 quantity = quantity,
                 unit = unit,
                 costPaisa = costPaisa,
-                buyerUid = buyerUid,
-                buyerName = buyerName,
-                date = date,
+                buyerUid = finalBuyerUid,
+                buyerName = finalBuyerName,
+                date = finalDate,
                 note = note,
                 month = mess.month,
                 year = mess.year

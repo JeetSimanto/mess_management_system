@@ -44,7 +44,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -64,7 +63,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.messmanager.app.domain.model.Grocery
-import com.messmanager.app.domain.model.Member
 import com.messmanager.app.ui.components.appTextFieldColors
 import com.messmanager.app.ui.theme.AvatarColors
 import com.messmanager.app.ui.theme.CurrencyHeroStyle
@@ -159,17 +157,12 @@ fun GroceryScreen(
         // Manager Inline Action Field Card
         if (uiState.isManager) {
             InlineGroceryActionCard(
-                members = uiState.members,
-                onAddGrocery = { itemName, costPaisa, buyerUid, buyerName ->
+                onAddGrocery = { itemName, quantity, unit, costPaisa ->
                     viewModel.addGrocery(
                         itemName = itemName,
-                        quantity = 1.0,
-                        unit = "pcs",
-                        costPaisa = costPaisa,
-                        buyerUid = buyerUid,
-                        buyerName = buyerName,
-                        date = DateUtils.todayIso(),
-                        note = ""
+                        quantity = quantity,
+                        unit = unit,
+                        costPaisa = costPaisa
                     )
                 }
             )
@@ -299,37 +292,35 @@ fun GroceryScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun InlineGroceryActionCard(
-    members: List<Member>,
-    onAddGrocery: (itemName: String, costPaisa: Long, buyerUid: String, buyerName: String) -> Unit,
+    onAddGrocery: (itemName: String, quantity: Double, unit: String, costPaisa: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var itemName by remember { mutableStateOf("") }
+    var quantityText by remember { mutableStateOf("1") }
+    var unit by remember { mutableStateOf("kg") }
     var costText by remember { mutableStateOf("") }
-    var selectedBuyer by remember { mutableStateOf(members.firstOrNull()) }
-    var buyerExpanded by remember { mutableStateOf(false) }
+    var unitExpanded by remember { mutableStateOf(false) }
+
+    val units = listOf("kg", "gm", "liter", "pcs", "packet", "box")
 
     val focusManager = LocalFocusManager.current
+    val quantityFocusRequester = remember { FocusRequester() }
     val costFocusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(members) {
-        if (selectedBuyer == null && members.isNotEmpty()) {
-            selectedBuyer = members.firstOrNull()
-        }
-    }
-
     val submitAction = {
+        val quantity = quantityText.toDoubleOrNull() ?: 1.0
         val costBdt = costText.toDoubleOrNull() ?: 0.0
         val costPaisa = CurrencyFormatter.bdtToPaisa(costBdt)
-        val buyer = selectedBuyer
 
-        if (itemName.isNotBlank() && costPaisa > 0 && buyer != null) {
+        if (itemName.isNotBlank() && costPaisa > 0) {
             onAddGrocery(
                 itemName.trim(),
-                costPaisa,
-                buyer.uid,
-                buyer.displayName
+                quantity,
+                unit,
+                costPaisa
             )
             itemName = ""
+            quantityText = "1"
             costText = ""
             focusManager.clearFocus()
         }
@@ -347,7 +338,7 @@ private fun InlineGroceryActionCard(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Card Header Title
+            // Card Title Header
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -377,13 +368,13 @@ private fun InlineGroceryActionCard(
                 )
             }
 
-            // Input Fields Row: Item Name & Cost
+            // Row 1: Item Name, Quantity, Unit
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 // Item Name Field
-                Column(modifier = Modifier.weight(1.4f)) {
+                Column(modifier = Modifier.weight(1.3f)) {
                     Text(
                         text = "Item Name",
                         style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
@@ -393,22 +384,92 @@ private fun InlineGroceryActionCard(
                     OutlinedTextField(
                         value = itemName,
                         onValueChange = { itemName = it },
-                        placeholder = { Text("e.g. Rice, Eggs, Oil", fontSize = 13.sp) },
+                        placeholder = { Text("e.g. Rice", fontSize = 13.sp) },
                         singleLine = true,
                         colors = appTextFieldColors(),
                         shape = RoundedCornerShape(RadiusSm),
                         modifier = Modifier.fillMaxWidth(),
-                        keyboardOptions = KeyboardOptions(
-                            imeAction = ImeAction.Next
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onNext = { costFocusRequester.requestFocus() }
-                        )
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                        keyboardActions = KeyboardActions(onNext = { quantityFocusRequester.requestFocus() })
                     )
                 }
 
+                // Quantity Field
+                Column(modifier = Modifier.weight(0.7f)) {
+                    Text(
+                        text = "Qty",
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    OutlinedTextField(
+                        value = quantityText,
+                        onValueChange = { quantityText = it },
+                        placeholder = { Text("1", fontSize = 13.sp) },
+                        singleLine = true,
+                        colors = appTextFieldColors(),
+                        shape = RoundedCornerShape(RadiusSm),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(quantityFocusRequester),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(onNext = { costFocusRequester.requestFocus() })
+                    )
+                }
+
+                // Unit Selector Dropdown
+                Column(modifier = Modifier.weight(0.9f)) {
+                    Text(
+                        text = "Unit",
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    ExposedDropdownMenuBox(
+                        expanded = unitExpanded,
+                        onExpandedChange = { unitExpanded = !unitExpanded },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        OutlinedTextField(
+                            value = unit,
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitExpanded) },
+                            colors = appTextFieldColors(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                            shape = RoundedCornerShape(RadiusSm)
+                        )
+                        ExposedDropdownMenu(
+                            expanded = unitExpanded,
+                            onDismissRequest = { unitExpanded = false }
+                        ) {
+                            units.forEach { u ->
+                                DropdownMenuItem(
+                                    text = { Text(u) },
+                                    onClick = {
+                                        unit = u
+                                        unitExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Row 2: Cost (৳) & Add Entry Button
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.Bottom
+            ) {
                 // Cost Field
-                Column(modifier = Modifier.weight(1f)) {
+                Column(modifier = Modifier.weight(1.2f)) {
                     Text(
                         text = "Cost (৳)",
                         style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
@@ -429,64 +490,14 @@ private fun InlineGroceryActionCard(
                             keyboardType = KeyboardType.Number,
                             imeAction = ImeAction.Done
                         ),
-                        keyboardActions = KeyboardActions(
-                            onDone = { submitAction() }
-                        )
+                        keyboardActions = KeyboardActions(onDone = { submitAction() })
                     )
-                }
-            }
-
-            // Buyer Selector & Add Entry Button Row
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalAlignment = Alignment.Bottom
-            ) {
-                // Buyer Dropdown
-                Column(modifier = Modifier.weight(1.3f)) {
-                    Text(
-                        text = "Bought By",
-                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
-                    ExposedDropdownMenuBox(
-                        expanded = buyerExpanded,
-                        onExpandedChange = { buyerExpanded = !buyerExpanded },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        OutlinedTextField(
-                            value = selectedBuyer?.displayName ?: "Select Member",
-                            onValueChange = {},
-                            readOnly = true,
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = buyerExpanded) },
-                            colors = appTextFieldColors(),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
-                            shape = RoundedCornerShape(RadiusSm)
-                        )
-                        ExposedDropdownMenu(
-                            expanded = buyerExpanded,
-                            onDismissRequest = { buyerExpanded = false }
-                        ) {
-                            members.forEach { m ->
-                                DropdownMenuItem(
-                                    text = { Text(m.displayName) },
-                                    onClick = {
-                                        selectedBuyer = m
-                                        buyerExpanded = false
-                                    }
-                                )
-                            }
-                        }
-                    }
                 }
 
                 // Add Entry Button
                 Button(
                     onClick = { submitAction() },
-                    enabled = itemName.isNotBlank() && costText.isNotBlank() && selectedBuyer != null,
+                    enabled = itemName.isNotBlank() && costText.isNotBlank(),
                     modifier = Modifier
                         .weight(1f)
                         .height(50.dp),
