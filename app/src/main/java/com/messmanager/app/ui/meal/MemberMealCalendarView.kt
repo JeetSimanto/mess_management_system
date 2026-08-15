@@ -99,21 +99,13 @@ fun MemberMealCalendarView(
             .border(BorderStroke(1.dp, DarkOutline), RoundedCornerShape(20.dp))
             .padding(16.dp)
     ) {
-        // Month & Year Header with Clickable Previous/Next Month Actions
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        // Month & Year Header (Clean, centered month title without < and > buttons)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            contentAlignment = Alignment.Center
         ) {
-            IconButton(onClick = { onMonthChange(-1) }) {
-                Icon(
-                    imageVector = Icons.Default.ChevronLeft,
-                    contentDescription = "Previous Month",
-                    tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = monthName,
@@ -124,15 +116,6 @@ fun MemberMealCalendarView(
                     text = "$year",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            IconButton(onClick = { onMonthChange(1) }) {
-                Icon(
-                    imageVector = Icons.Default.ChevronRight,
-                    contentDescription = "Next Month",
-                    tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.size(24.dp)
                 )
             }
         }
