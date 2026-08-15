@@ -54,10 +54,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -297,7 +300,7 @@ private fun InlineGroceryActionCard(
 ) {
     var itemName by remember { mutableStateOf("") }
     var quantityText by remember { mutableStateOf("1") }
-    var unit by remember { mutableStateOf("kg") }
+    var unitValue by remember { mutableStateOf(TextFieldValue("kg")) }
     var costText by remember { mutableStateOf("") }
     var unitExpanded by remember { mutableStateOf(false) }
 
@@ -305,22 +308,25 @@ private fun InlineGroceryActionCard(
 
     val focusManager = LocalFocusManager.current
     val quantityFocusRequester = remember { FocusRequester() }
+    val unitFocusRequester = remember { FocusRequester() }
     val costFocusRequester = remember { FocusRequester() }
 
     val submitAction = {
         val quantity = quantityText.toDoubleOrNull() ?: 1.0
         val costBdt = costText.toDoubleOrNull() ?: 0.0
         val costPaisa = CurrencyFormatter.bdtToPaisa(costBdt)
+        val unitStr = if (unitValue.text.isNotBlank()) unitValue.text.trim() else "kg"
 
         if (itemName.isNotBlank() && costPaisa > 0) {
             onAddGrocery(
                 itemName.trim(),
                 quantity,
-                unit,
+                unitStr,
                 costPaisa
             )
             itemName = ""
             quantityText = "1"
+            unitValue = TextFieldValue("kg")
             costText = ""
             focusManager.clearFocus()
         }
@@ -416,11 +422,11 @@ private fun InlineGroceryActionCard(
                             keyboardType = KeyboardType.Number,
                             imeAction = ImeAction.Next
                         ),
-                        keyboardActions = KeyboardActions(onNext = { costFocusRequester.requestFocus() })
+                        keyboardActions = KeyboardActions(onNext = { unitFocusRequester.requestFocus() })
                     )
                 }
 
-                // Unit Selector Dropdown
+                // Editable Unit Selector Dropdown with Auto-Select on Focus
                 Column(modifier = Modifier.weight(0.9f)) {
                     Text(
                         text = "Unit",
@@ -434,15 +440,24 @@ private fun InlineGroceryActionCard(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         OutlinedTextField(
-                            value = unit,
-                            onValueChange = {},
-                            readOnly = true,
+                            value = unitValue,
+                            onValueChange = { unitValue = it },
+                            placeholder = { Text("kg", fontSize = 13.sp) },
+                            singleLine = true,
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitExpanded) },
                             colors = appTextFieldColors(),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
-                            shape = RoundedCornerShape(RadiusSm)
+                                .focusRequester(unitFocusRequester)
+                                .onFocusChanged { focusState ->
+                                    if (focusState.isFocused && unitValue.text.isNotEmpty()) {
+                                        unitValue = unitValue.copy(selection = TextRange(0, unitValue.text.length))
+                                    }
+                                }
+                                .menuAnchor(MenuAnchorType.PrimaryEditable),
+                            shape = RoundedCornerShape(RadiusSm),
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                            keyboardActions = KeyboardActions(onNext = { costFocusRequester.requestFocus() })
                         )
                         ExposedDropdownMenu(
                             expanded = unitExpanded,
@@ -452,8 +467,9 @@ private fun InlineGroceryActionCard(
                                 DropdownMenuItem(
                                     text = { Text(u) },
                                     onClick = {
-                                        unit = u
+                                        unitValue = TextFieldValue(text = u, selection = TextRange(u.length))
                                         unitExpanded = false
+                                        costFocusRequester.requestFocus()
                                     }
                                 )
                             }
