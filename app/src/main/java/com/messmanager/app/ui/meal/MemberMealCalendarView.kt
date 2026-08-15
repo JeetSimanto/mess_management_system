@@ -126,28 +126,24 @@ fun MemberMealCalendarView(
                 )
             }
 
-            // Top Right Circle: Selected Day Meal Count
+            // Top Right Circle: Selected Day Meal Count (Clean circle badge displaying ONLY number)
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
-                    .size(46.dp)
+                    .size(42.dp)
                     .clip(CircleShape)
-                    .background(DarkPrimaryGlow)
+                    .background(DarkPrimaryGlow.copy(alpha = 0.2f))
                     .border(BorderStroke(1.5.dp, DarkPrimary), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = formatCountDisplay(countForSelectedDay),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = DarkPrimary
-                    )
-                    Text(
-                        text = "meals",
-                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 8.sp, fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                Text(
+                    text = formatCountDisplay(countForSelectedDay),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    ),
+                    color = DarkPrimary
+                )
             }
         }
 
