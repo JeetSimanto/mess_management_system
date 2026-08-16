@@ -299,8 +299,8 @@ private fun InlineGroceryActionCard(
     modifier: Modifier = Modifier
 ) {
     var itemName by remember { mutableStateOf("") }
-    var quantityText by remember { mutableStateOf("1") }
-    var unitValue by remember { mutableStateOf(TextFieldValue("kg")) }
+    var quantityText by remember { mutableStateOf("") }
+    var unitValue by remember { mutableStateOf(TextFieldValue("")) }
     var costText by remember { mutableStateOf("") }
     var unitExpanded by remember { mutableStateOf(false) }
 
@@ -325,8 +325,8 @@ private fun InlineGroceryActionCard(
                 costPaisa
             )
             itemName = ""
-            quantityText = "1"
-            unitValue = TextFieldValue("kg")
+            quantityText = ""
+            unitValue = TextFieldValue("")
             costText = ""
             focusManager.clearFocus()
         }
@@ -337,12 +337,12 @@ private fun InlineGroceryActionCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
             .background(DarkSurface)
-            .border(BorderStroke(1.dp, DarkOutline), RoundedCornerShape(20.dp)),
+            .border(BorderStroke(1.dp, DarkOutline.copy(alpha = 0.6f)), RoundedCornerShape(20.dp)),
         color = DarkSurface
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             // Card Title Header
             Row(
@@ -390,7 +390,6 @@ private fun InlineGroceryActionCard(
                     OutlinedTextField(
                         value = itemName,
                         onValueChange = { itemName = it },
-                        placeholder = { Text("e.g. Rice", fontSize = 13.sp) },
                         singleLine = true,
                         colors = appTextFieldColors(),
                         shape = RoundedCornerShape(RadiusSm),
@@ -411,7 +410,6 @@ private fun InlineGroceryActionCard(
                     OutlinedTextField(
                         value = quantityText,
                         onValueChange = { quantityText = it },
-                        placeholder = { Text("1", fontSize = 13.sp) },
                         singleLine = true,
                         colors = appTextFieldColors(),
                         shape = RoundedCornerShape(RadiusSm),
@@ -426,7 +424,7 @@ private fun InlineGroceryActionCard(
                     )
                 }
 
-                // Editable Unit Selector Dropdown with Auto-Select on Focus
+                // Editable Unit Selector Dropdown
                 Column(modifier = Modifier.weight(0.9f)) {
                     Text(
                         text = "Unit",
@@ -442,7 +440,6 @@ private fun InlineGroceryActionCard(
                         OutlinedTextField(
                             value = unitValue,
                             onValueChange = { unitValue = it },
-                            placeholder = { Text("kg", fontSize = 13.sp) },
                             singleLine = true,
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitExpanded) },
                             colors = appTextFieldColors(),
@@ -495,7 +492,6 @@ private fun InlineGroceryActionCard(
                     OutlinedTextField(
                         value = costText,
                         onValueChange = { costText = it },
-                        placeholder = { Text("650", fontSize = 13.sp) },
                         singleLine = true,
                         colors = appTextFieldColors(),
                         shape = RoundedCornerShape(RadiusSm),
@@ -516,7 +512,7 @@ private fun InlineGroceryActionCard(
                     enabled = itemName.isNotBlank() && costText.isNotBlank(),
                     modifier = Modifier
                         .weight(1f)
-                        .height(50.dp),
+                        .height(52.dp),
                     shape = RoundedCornerShape(RadiusSm),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = DarkPrimary,
