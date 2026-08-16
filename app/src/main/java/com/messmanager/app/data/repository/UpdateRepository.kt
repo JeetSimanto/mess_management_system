@@ -76,7 +76,8 @@ class UpdateRepository @Inject constructor() {
         onProgress: (progress: Int, downloadedBytes: Long, totalBytes: Long) -> Unit
     ): File? = withContext(Dispatchers.IO) {
         try {
-            val updatesDir = File(context.cacheDir, "updates").apply { if (!exists()) mkdirs() }
+            val parentDir = context.getExternalFilesDir(null) ?: context.cacheDir
+            val updatesDir = File(parentDir, "updates").apply { if (!exists()) mkdirs() }
             updatesDir.listFiles()?.forEach { it.delete() }
             val apkFile = File(updatesDir, "update.apk")
 
@@ -139,6 +140,16 @@ class UpdateRepository @Inject constructor() {
 
     fun installApk(context: Context, apkFile: File) {
         try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                if (!context.packageManager.canRequestPackageInstalls()) {
+                    val manageIntent = Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                        data = Uri.parse("package:${context.packageName}")
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                    context.startActivity(manageIntent)
+                }
+            }
+
             val uri: Uri = FileProvider.getUriForFile(
                 context,
                 "${context.packageName}.fileprovider",
