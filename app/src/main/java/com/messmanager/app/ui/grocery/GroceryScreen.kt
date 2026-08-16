@@ -473,6 +473,10 @@ private fun InlineGroceryActionCard(
                             shape = RoundedCornerShape(RadiusSm),
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                             keyboardActions = KeyboardActions(onNext = { 
+                                val topSuggestion = filteredUnits.firstOrNull()
+                                if (unitValue.text.isNotBlank() && topSuggestion != null) {
+                                    unitValue = TextFieldValue(text = topSuggestion, selection = TextRange(topSuggestion.length))
+                                }
                                 unitExpanded = false
                                 costFocusRequester.requestFocus() 
                             })
