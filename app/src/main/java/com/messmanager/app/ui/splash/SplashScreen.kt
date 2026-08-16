@@ -232,8 +232,8 @@ fun SplashScreen(
                 // Outer Pulse Ring
                 Box(
                     modifier = Modifier
-                        .size(160.dp)
-                        .clip(CircleShape)
+                        .size(width = 240.dp, height = 140.dp)
+                        .clip(RoundedCornerShape(36.dp))
                         .background(
                             Brush.radialGradient(
                                 colors = listOf(
@@ -248,8 +248,8 @@ fun SplashScreen(
                 // Logo Card Frame
                 Box(
                     modifier = Modifier
-                        .size(136.dp)
-                        .clip(RoundedCornerShape(32.dp))
+                        .size(width = 210.dp, height = 110.dp)
+                        .clip(RoundedCornerShape(28.dp))
                         .background(DarkSurface)
                         .border(
                             width = 2.dp,
@@ -260,9 +260,9 @@ fun SplashScreen(
                                     DarkOutline
                                 )
                             ),
-                            shape = RoundedCornerShape(32.dp)
+                            shape = RoundedCornerShape(28.dp)
                         )
-                        .padding(14.dp),
+                        .padding(horizontal = 20.dp, vertical = 14.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
