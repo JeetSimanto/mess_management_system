@@ -1,29 +1,12 @@
 package com.messmanager.app.ui.navigation
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -38,9 +21,8 @@ import com.messmanager.app.ui.dashboard.DashboardScreen
 import com.messmanager.app.ui.grocery.GroceryScreen
 import com.messmanager.app.ui.meal.MealTrackerScreen
 import com.messmanager.app.ui.settings.SettingsScreen
+import com.messmanager.app.ui.splash.AnimatedSplashScreen
 import com.messmanager.app.ui.utility.UtilityScreen
-import com.messmanager.app.ui.theme.DarkPrimary
-import com.messmanager.app.ui.theme.DarkPrimaryGlow
 import com.messmanager.app.ui.welcome.AuthViewModel
 import com.messmanager.app.ui.welcome.CreateMessScreen
 import com.messmanager.app.ui.welcome.JoinMessScreen
@@ -57,42 +39,7 @@ fun NavGraph(
 ) {
     val authState by authViewModel.uiState.collectAsState()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route ?: Screen.Welcome.route
-
-    if (authState.isAuthInitializing) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(80.dp)
-                        .clip(CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Home,
-                        contentDescription = "App Logo",
-                        tint = DarkPrimary,
-                        modifier = Modifier.size(44.dp)
-                    )
-                }
-                Spacer(modifier = Modifier.height(24.dp))
-                CircularProgressIndicator(
-                    color = DarkPrimary,
-                    strokeWidth = 3.dp,
-                    modifier = Modifier.size(28.dp)
-                )
-            }
-        }
-        return
-    }
+    val currentRoute = navBackStackEntry?.destination?.route ?: Screen.Splash.route
 
     LaunchedEffect(authState.isMessCreatedOrJoined, authState.isAuthInitializing) {
         if (!authState.isAuthInitializing && authState.isMessCreatedOrJoined && currentRoute == Screen.Welcome.route) {
@@ -141,17 +88,28 @@ fun NavGraph(
             }
         }
     ) { innerPadding ->
-        val startDestination = if (authState.isMessCreatedOrJoined) {
-            Screen.Dashboard.route
-        } else {
-            Screen.Welcome.route
-        }
-
         NavHost(
             navController = navController,
-            startDestination = startDestination,
+            startDestination = Screen.Splash.route,
             modifier = Modifier.padding(innerPadding)
         ) {
+            composable(Screen.Splash.route) {
+                AnimatedSplashScreen(
+                    onAnimationFinished = {
+                        val targetDestination = if (authState.isMessCreatedOrJoined) {
+                            Screen.Dashboard.route
+                        } else {
+                            Screen.Welcome.route
+                        }
+                        navController.navigate(targetDestination) {
+                            popUpTo(Screen.Splash.route) {
+                                inclusive = true
+                            }
+                        }
+                    }
+                )
+            }
+
             composable(Screen.Welcome.route) {
                 WelcomeScreen(
                     uiState = authState,

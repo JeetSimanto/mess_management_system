@@ -15,8 +15,8 @@ android {
         applicationId = "com.messmanager.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 51
-        versionName = "1.5.6"
+        versionCode = 52
+        versionName = "1.6.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -68,6 +68,7 @@ dependencies {
     // Core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.core.splashscreen)
 
     // Compose BOM
     implementation(platform(libs.compose.bom))

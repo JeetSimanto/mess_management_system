@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- System Splash Screen Theme -->
+    <style name="Theme.MessManagement.Starting" parent="Theme.SplashScreen">
+        <!-- Match Compose solid background color (DarkBackground: #0A0E14) -->
+        <item name="windowSplashScreenBackground">#0A0E14</item>
+
+        <!-- Hide system icon to prevent double-splash effect with Compose animation -->
+        <item name="windowSplashScreenAnimatedIcon">@android:color/transparent</item>
+
+        <!-- Post splash theme to switch to after system splash screen -->
+        <item name="postSplashScreenTheme">@style/Theme.MessManagement</item>
+    </style>
+
     <style name="Theme.MessManagementSystem" parent="android:Theme.Material.NoActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>

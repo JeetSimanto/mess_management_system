@@ -30,6 +30,8 @@ import com.messmanager.app.util.NotificationHelper
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
@@ -54,6 +56,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
