@@ -39,7 +39,6 @@ import com.messmanager.app.ui.grocery.GroceryScreen
 import com.messmanager.app.ui.meal.MealTrackerScreen
 import com.messmanager.app.ui.settings.SettingsScreen
 import com.messmanager.app.ui.utility.UtilityScreen
-import com.messmanager.app.ui.splash.AnimatedSplashScreen
 import com.messmanager.app.ui.theme.DarkPrimary
 import com.messmanager.app.ui.theme.DarkPrimaryGlow
 import com.messmanager.app.ui.welcome.AuthViewModel
@@ -49,6 +48,11 @@ import com.messmanager.app.ui.welcome.WelcomeScreen
 import java.time.Month
 import java.time.format.TextStyle
 import java.util.Locale
+
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.messmanager.app.ui.splash.SplashScreen
 
 @Composable
 fun NavGraph(
@@ -60,8 +64,20 @@ fun NavGraph(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: Screen.Splash.route
 
-    LaunchedEffect(authState.isMessCreatedOrJoined, authState.isAuthInitializing) {
-        if (!authState.isAuthInitializing && authState.isMessCreatedOrJoined && currentRoute == Screen.Welcome.route) {
+    var splashFinished by remember { mutableStateOf(false) }
+
+    if (!splashFinished) {
+        SplashScreen(
+            isInitializing = authState.isAuthInitializing,
+            onSplashFinished = {
+                splashFinished = true
+            }
+        )
+        return
+    }
+
+    LaunchedEffect(authState.isMessCreatedOrJoined, authState.isAuthInitializing, splashFinished) {
+        if (splashFinished && !authState.isAuthInitializing && authState.isMessCreatedOrJoined && currentRoute == Screen.Welcome.route) {
             navController.navigate(Screen.Dashboard.route) {
                 popUpTo(Screen.Welcome.route) { inclusive = true }
             }
@@ -107,27 +123,17 @@ fun NavGraph(
             }
         }
     ) { innerPadding ->
+        val startDestination = if (authState.isMessCreatedOrJoined) {
+            Screen.Dashboard.route
+        } else {
+            Screen.Welcome.route
+        }
+
         NavHost(
             navController = navController,
-            startDestination = Screen.Splash.route,
+            startDestination = startDestination,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Screen.Splash.route) {
-                AnimatedSplashScreen(
-                    onAnimationFinished = {
-                        val destination = if (authState.isMessCreatedOrJoined) {
-                            Screen.Dashboard.route
-                        } else {
-                            Screen.Welcome.route
-                        }
-                        navController.navigate(destination) {
-                            popUpTo(Screen.Splash.route) {
-                                inclusive = true
-                            }
-                        }
-                    }
-                )
-            }
             composable(Screen.Welcome.route) {
                 WelcomeScreen(
                     uiState = authState,

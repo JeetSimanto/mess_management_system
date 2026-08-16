@@ -27,7 +27,6 @@ import com.messmanager.app.ui.navigation.NavGraph
 import com.messmanager.app.ui.theme.MessManagementTheme
 import com.messmanager.app.ui.welcome.AuthViewModel
 import com.messmanager.app.util.NotificationHelper
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -55,7 +54,6 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 

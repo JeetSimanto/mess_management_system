@@ -1,22 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Base App Theme -->
     <style name="Theme.MessManagementSystem" parent="android:Theme.Material.NoActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
-
     <style name="Theme.MessManagement" parent="Theme.MessManagementSystem" />
-
-    <!-- System Splash Screen Theme (Android 12+ API) -->
-    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-        <!-- Solid background matching app dark background (#0A0E14) -->
-        <item name="windowSplashScreenBackground">#0A0E14</item>
-
-        <!-- Hide system splash icon to prevent double splash effect with Compose -->
-        <item name="windowSplashScreenAnimatedIcon">@android:color/transparent</item>
-
-        <!-- The theme to switch to after the system splash screen is done -->
-        <item name="postSplashScreenTheme">@style/Theme.MessManagement</item>
-    </style>
 </resources>
