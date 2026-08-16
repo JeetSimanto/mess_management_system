@@ -17,6 +17,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import android.content.Context
+import com.messmanager.app.data.local.DailyNotificationPreferences
+import com.messmanager.app.util.NotificationScheduler
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -30,6 +33,10 @@ data class SettingsUiState(
     val isManager: Boolean = false,
     val members: List<Member> = emptyList(),
     val updateInfo: UpdateInfo? = null,
+    val isDailyNotificationEnabled: Boolean = true,
+    val notificationHour: Int = DailyNotificationPreferences.DEFAULT_HOUR,
+    val notificationMinute: Int = DailyNotificationPreferences.DEFAULT_MINUTE,
+    val formattedNotificationTime: String = "09:00 PM",
     val error: String? = null,
     val successMessage: String? = null
 )
@@ -39,7 +46,8 @@ class SettingsViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val messRepository: MessRepository,
     private val dashboardRepository: DashboardRepository,
-    private val updateRepository: UpdateRepository
+    private val updateRepository: UpdateRepository,
+    private val dailyNotificationPreferences: DailyNotificationPreferences
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
@@ -54,6 +62,14 @@ class SettingsViewModel @Inject constructor(
 
     private fun loadSettingsData() {
         val currentUid = authRepository.currentUserId ?: return
+
+        // Load daily notification preferences
+        _uiState.value = _uiState.value.copy(
+            isDailyNotificationEnabled = dailyNotificationPreferences.isEnabled,
+            notificationHour = dailyNotificationPreferences.hour,
+            notificationMinute = dailyNotificationPreferences.minute,
+            formattedNotificationTime = dailyNotificationPreferences.getFormattedTime()
+        )
 
         viewModelScope.launch {
             authRepository.observeCurrentUser().collect { user ->
@@ -259,6 +275,37 @@ class SettingsViewModel @Inject constructor(
 
     fun signOut() {
         authRepository.signOut()
+    }
+
+    fun setDailyNotificationEnabled(context: Context, enabled: Boolean) {
+        dailyNotificationPreferences.isEnabled = enabled
+        if (enabled) {
+            NotificationScheduler.scheduleDailyNotification(
+                context,
+                dailyNotificationPreferences.hour,
+                dailyNotificationPreferences.minute
+            )
+        } else {
+            NotificationScheduler.cancelDailyNotification(context)
+        }
+        _uiState.value = _uiState.value.copy(
+            isDailyNotificationEnabled = enabled,
+            successMessage = if (enabled) "Daily meal summary notification enabled." else "Daily meal notification disabled."
+        )
+    }
+
+    fun updateNotificationTime(context: Context, hour: Int, minute: Int) {
+        dailyNotificationPreferences.hour = hour
+        dailyNotificationPreferences.minute = minute
+        if (dailyNotificationPreferences.isEnabled) {
+            NotificationScheduler.scheduleDailyNotification(context, hour, minute)
+        }
+        _uiState.value = _uiState.value.copy(
+            notificationHour = hour,
+            notificationMinute = minute,
+            formattedNotificationTime = dailyNotificationPreferences.getFormattedTime(),
+            successMessage = "Daily notification time updated to ${dailyNotificationPreferences.getFormattedTime()}."
+        )
     }
 
     fun clearMessages() {

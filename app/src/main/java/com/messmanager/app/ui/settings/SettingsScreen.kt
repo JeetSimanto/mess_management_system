@@ -25,8 +25,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
@@ -35,6 +38,7 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.GroupAdd
 import androidx.compose.material.icons.filled.House
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.PersonRemove
 import androidx.compose.material.icons.filled.Refresh
@@ -49,6 +53,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -101,6 +107,28 @@ fun SettingsScreen(
     var showMessesModal by remember { mutableStateOf(false) }
     var showMembersModal by remember { mutableStateOf(false) }
     var showDeleteConfirmationDialog by remember { mutableStateOf(false) }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            viewModel.setDailyNotificationEnabled(context, true)
+        } else {
+            Toast.makeText(context, "Notification permission is required for daily meal alerts.", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    val timePickerDialog = remember(uiState.notificationHour, uiState.notificationMinute) {
+        android.app.TimePickerDialog(
+            context,
+            { _, hourOfDay, minute ->
+                viewModel.updateNotificationTime(context, hourOfDay, minute)
+            },
+            uiState.notificationHour,
+            uiState.notificationMinute,
+            false
+        )
+    }
 
     LaunchedEffect(uiState.error, uiState.successMessage) {
         uiState.error?.let {
@@ -263,7 +291,60 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // SECTION 2: APP & UPDATES (Grouped Card)
+        // SECTION 2: PREFERENCES & NOTIFICATIONS (Grouped Card)
+        SettingSectionHeader(title = "PREFERENCES & NOTIFICATIONS")
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        SettingGroupCard {
+            SettingRowItem(
+                icon = Icons.Default.Notifications,
+                title = "Daily Meal Summary",
+                subtitle = if (uiState.isDailyNotificationEnabled)
+                    "Daily alert scheduled at ${uiState.formattedNotificationTime}"
+                else
+                    "Automated daily meal summary disabled",
+                trailingContent = {
+                    Switch(
+                        checked = uiState.isDailyNotificationEnabled,
+                        onCheckedChange = { enabled ->
+                            if (enabled && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                                val permissionCheck = androidx.core.content.ContextCompat.checkSelfPermission(
+                                    context,
+                                    android.Manifest.permission.POST_NOTIFICATIONS
+                                )
+                                if (permissionCheck != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                                    permissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                                    return@Switch
+                                }
+                            }
+                            viewModel.setDailyNotificationEnabled(context, enabled)
+                        },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = DarkBackground,
+                            checkedTrackColor = DarkPrimary,
+                            uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            uncheckedTrackColor = DarkSurface
+                        )
+                    )
+                }
+            )
+
+            if (uiState.isDailyNotificationEnabled) {
+                SettingItemDivider()
+
+                SettingRowItem(
+                    icon = Icons.Default.AccessTime,
+                    title = "Notification Time",
+                    subtitle = "Tap to change scheduled time (${uiState.formattedNotificationTime})",
+                    onClick = { timePickerDialog.show() }
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // SECTION 3: APP & UPDATES (Grouped Card)
         SettingSectionHeader(title = "APP & UPDATES")
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -781,13 +862,13 @@ private fun SettingRowItem(
     subtitle: String? = null,
     iconTint: Color = DarkPrimary,
     titleColor: Color = MaterialTheme.colorScheme.onSurface,
-    onClick: () -> Unit,
+    onClick: (() -> Unit)? = null,
     trailingContent: (@Composable () -> Unit)? = null
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
             .padding(horizontal = 16.dp, vertical = 14.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
