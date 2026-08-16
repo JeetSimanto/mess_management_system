@@ -61,7 +61,16 @@ fun GroceryFormSheet(
     var buyerExpanded by remember { mutableStateOf(false) }
     var unitExpanded by remember { mutableStateOf(false) }
 
-    val units = listOf("kg", "gm", "liter", "pcs", "packet", "box")
+    val units = remember { listOf("kg", "gm", "liter", "pcs", "packet", "box", "doz", "bag", "sack", "bottle", "can") }
+
+    val filteredUnits = remember(unit) {
+        val query = unit.trim()
+        if (query.isEmpty()) {
+            units
+        } else {
+            units.filter { it.contains(query, ignoreCase = true) }
+        }
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -110,25 +119,28 @@ fun GroceryFormSheet(
 
                 // Unit Selector
                 ExposedDropdownMenuBox(
-                    expanded = unitExpanded,
+                    expanded = unitExpanded && filteredUnits.isNotEmpty(),
                     onExpandedChange = { unitExpanded = !unitExpanded },
                     modifier = Modifier.weight(1f)
                 ) {
                     OutlinedTextField(
                         value = unit,
-                        onValueChange = {},
-                        readOnly = true,
+                        onValueChange = { newValue ->
+                            unit = newValue
+                            unitExpanded = true
+                        },
+                        readOnly = false,
                         label = { Text("Unit") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitExpanded) },
                         colors = appTextFieldColors(),
-                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable),
                         shape = RoundedCornerShape(RadiusLg)
                     )
                     ExposedDropdownMenu(
-                        expanded = unitExpanded,
+                        expanded = unitExpanded && filteredUnits.isNotEmpty(),
                         onDismissRequest = { unitExpanded = false }
                     ) {
-                        units.forEach { u ->
+                        filteredUnits.forEach { u ->
                             DropdownMenuItem(
                                 text = { Text(u) },
                                 onClick = {

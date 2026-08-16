@@ -304,7 +304,16 @@ private fun InlineGroceryActionCard(
     var costText by remember { mutableStateOf("") }
     var unitExpanded by remember { mutableStateOf(false) }
 
-    val units = listOf("kg", "gm", "liter", "pcs", "packet", "box")
+    val units = remember { listOf("kg", "gm", "liter", "pcs", "packet", "box", "doz", "bag", "sack", "bottle", "can") }
+
+    val filteredUnits = remember(unitValue.text) {
+        val query = unitValue.text.trim()
+        if (query.isEmpty()) {
+            units
+        } else {
+            units.filter { it.contains(query, ignoreCase = true) }
+        }
+    }
 
     val focusManager = LocalFocusManager.current
     val quantityFocusRequester = remember { FocusRequester() }
@@ -328,6 +337,7 @@ private fun InlineGroceryActionCard(
             quantityText = ""
             unitValue = TextFieldValue("")
             costText = ""
+            unitExpanded = false
             focusManager.clearFocus()
         }
     }
@@ -424,7 +434,7 @@ private fun InlineGroceryActionCard(
                     )
                 }
 
-                // Editable Unit Selector Dropdown
+                // Editable Unit Selector Dropdown with Real-Time Suggestions
                 Column(modifier = Modifier.weight(0.9f)) {
                     Text(
                         text = "Unit",
@@ -433,13 +443,16 @@ private fun InlineGroceryActionCard(
                         modifier = Modifier.padding(bottom = 4.dp)
                     )
                     ExposedDropdownMenuBox(
-                        expanded = unitExpanded,
+                        expanded = unitExpanded && filteredUnits.isNotEmpty(),
                         onExpandedChange = { unitExpanded = !unitExpanded },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         OutlinedTextField(
                             value = unitValue,
-                            onValueChange = { unitValue = it },
+                            onValueChange = { newValue ->
+                                unitValue = newValue
+                                unitExpanded = true
+                            },
                             singleLine = true,
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitExpanded) },
                             colors = appTextFieldColors(),
@@ -447,20 +460,28 @@ private fun InlineGroceryActionCard(
                                 .fillMaxWidth()
                                 .focusRequester(unitFocusRequester)
                                 .onFocusChanged { focusState ->
-                                    if (focusState.isFocused && unitValue.text.isNotEmpty()) {
-                                        unitValue = unitValue.copy(selection = TextRange(0, unitValue.text.length))
+                                    if (focusState.isFocused) {
+                                        unitExpanded = true
+                                        if (unitValue.text.isNotEmpty()) {
+                                            unitValue = unitValue.copy(selection = TextRange(0, unitValue.text.length))
+                                        }
+                                    } else {
+                                        unitExpanded = false
                                     }
                                 }
                                 .menuAnchor(MenuAnchorType.PrimaryEditable),
                             shape = RoundedCornerShape(RadiusSm),
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                            keyboardActions = KeyboardActions(onNext = { costFocusRequester.requestFocus() })
+                            keyboardActions = KeyboardActions(onNext = { 
+                                unitExpanded = false
+                                costFocusRequester.requestFocus() 
+                            })
                         )
                         ExposedDropdownMenu(
-                            expanded = unitExpanded,
+                            expanded = unitExpanded && filteredUnits.isNotEmpty(),
                             onDismissRequest = { unitExpanded = false }
                         ) {
-                            units.forEach { u ->
+                            filteredUnits.forEach { u ->
                                 DropdownMenuItem(
                                     text = { Text(u) },
                                     onClick = {
