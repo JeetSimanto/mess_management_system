@@ -1,12 +1,29 @@
 package com.messmanager.app.ui.navigation
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -21,8 +38,10 @@ import com.messmanager.app.ui.dashboard.DashboardScreen
 import com.messmanager.app.ui.grocery.GroceryScreen
 import com.messmanager.app.ui.meal.MealTrackerScreen
 import com.messmanager.app.ui.settings.SettingsScreen
-import com.messmanager.app.ui.splash.AnimatedSplashScreen
 import com.messmanager.app.ui.utility.UtilityScreen
+import com.messmanager.app.ui.splash.AnimatedSplashScreen
+import com.messmanager.app.ui.theme.DarkPrimary
+import com.messmanager.app.ui.theme.DarkPrimaryGlow
 import com.messmanager.app.ui.welcome.AuthViewModel
 import com.messmanager.app.ui.welcome.CreateMessScreen
 import com.messmanager.app.ui.welcome.JoinMessScreen
@@ -96,12 +115,12 @@ fun NavGraph(
             composable(Screen.Splash.route) {
                 AnimatedSplashScreen(
                     onAnimationFinished = {
-                        val targetDestination = if (authState.isMessCreatedOrJoined) {
+                        val destination = if (authState.isMessCreatedOrJoined) {
                             Screen.Dashboard.route
                         } else {
                             Screen.Welcome.route
                         }
-                        navController.navigate(targetDestination) {
+                        navController.navigate(destination) {
                             popUpTo(Screen.Splash.route) {
                                 inclusive = true
                             }
@@ -109,7 +128,6 @@ fun NavGraph(
                     }
                 )
             }
-
             composable(Screen.Welcome.route) {
                 WelcomeScreen(
                     uiState = authState,

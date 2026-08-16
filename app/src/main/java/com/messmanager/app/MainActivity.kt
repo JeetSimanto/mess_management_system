@@ -27,10 +27,9 @@ import com.messmanager.app.ui.navigation.NavGraph
 import com.messmanager.app.ui.theme.MessManagementTheme
 import com.messmanager.app.ui.welcome.AuthViewModel
 import com.messmanager.app.util.NotificationHelper
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

@@ -5,7 +5,6 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -70,27 +69,29 @@ fun AnimatedSplashScreen(
         contentAlignment = Alignment.Center
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .scale(scale.value)
-                .alpha(alpha.value)
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_launcher_foreground_img),
-                contentDescription = "Mess Manager Logo",
-                modifier = Modifier.size(140.dp)
+                contentDescription = "App Logo",
+                modifier = Modifier
+                    .size(110.dp)
+                    .scale(scale.value)
+                    .alpha(alpha.value)
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
             Text(
                 text = "MESS MANAGER",
-                style = MaterialTheme.typography.titleMedium.copy(
+                style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 2.sp
                 ),
-                color = DarkPrimary
+                color = DarkPrimary,
+                modifier = Modifier
+                    .scale(scale.value)
+                    .alpha(alpha.value)
             )
         }
     }

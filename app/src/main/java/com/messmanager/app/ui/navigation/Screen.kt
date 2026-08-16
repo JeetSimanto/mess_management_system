@@ -1,7 +1,7 @@
 package com.messmanager.app.ui.navigation
 
 sealed class Screen(val route: String, val title: String = "") {
-    object Splash : Screen("splash", "Splash")
+    object Splash : Screen("splash_screen", "Splash")
     object Welcome : Screen("welcome", "Welcome")
     object CreateMess : Screen("create_mess", "Create Mess")
     object JoinMess : Screen("join_mess", "Join Mess")
