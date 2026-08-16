@@ -72,9 +72,6 @@ fun SplashScreen(
     val titleAlpha = remember { Animatable(0f) }
     val titleOffsetY = remember { Animatable(40f) }
 
-    val subtitleAlpha = remember { Animatable(0f) }
-    val subtitleOffsetY = remember { Animatable(25f) }
-
     val progressAnim = remember { Animatable(0f) }
 
     // Infinite ambient animations
@@ -138,17 +135,9 @@ fun SplashScreen(
             titleOffsetY.animateTo(0f, animationSpec = spring(stiffness = Spring.StiffnessLow))
         }
 
-        delay(250)
+        delay(200)
 
-        // Phase 3: Subtitle Entrance
-        launch {
-            subtitleAlpha.animateTo(1f, animationSpec = tween(400))
-        }
-        launch {
-            subtitleOffsetY.animateTo(0f, animationSpec = spring(stiffness = Spring.StiffnessLow))
-        }
-
-        // Phase 4: Progress Bar Fill
+        // Phase 3: Progress Bar Fill
         progressAnim.animateTo(
             targetValue = 1.0f,
             animationSpec = tween(1800, easing = FastOutSlowInEasing)
@@ -291,37 +280,9 @@ fun SplashScreen(
                     letterSpacing = 2.sp,
                     color = Color.White
                 )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Subtitle Badge
-                Box(
-                    modifier = Modifier
-                        .graphicsLayer {
-                            alpha = subtitleAlpha.value
-                            translationY = subtitleOffsetY.value
-                        }
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(DarkPrimaryGlow.copy(alpha = 0.3f))
-                        .border(
-                            width = 1.dp,
-                            color = DarkPrimary.copy(alpha = 0.4f),
-                            shape = RoundedCornerShape(20.dp)
-                        )
-                        .padding(horizontal = 14.dp, vertical = 6.dp)
-                ) {
-                    Text(
-                        text = "SMART MESS & GROCERY ECOSYSTEM",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.5.sp
-                        ),
-                        color = DarkPrimary
-                    )
-                }
             }
 
-            Spacer(modifier = Modifier.height(56.dp))
+            Spacer(modifier = Modifier.height(48.dp))
 
             // Premium Animated Progress Bar
             val currentProgress = progressAnim.value
@@ -330,7 +291,7 @@ fun SplashScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxWidth(0.7f)
-                    .alpha(subtitleAlpha.value)
+                    .alpha(titleAlpha.value)
             ) {
                 // Outer Track
                 Box(
