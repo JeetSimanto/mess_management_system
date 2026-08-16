@@ -316,6 +316,7 @@ private fun InlineGroceryActionCard(
     }
 
     val focusManager = LocalFocusManager.current
+    val itemNameFocusRequester = remember { FocusRequester() }
     val quantityFocusRequester = remember { FocusRequester() }
     val unitFocusRequester = remember { FocusRequester() }
     val costFocusRequester = remember { FocusRequester() }
@@ -338,7 +339,7 @@ private fun InlineGroceryActionCard(
             unitValue = TextFieldValue("")
             costText = ""
             unitExpanded = false
-            focusManager.clearFocus()
+            itemNameFocusRequester.requestFocus()
         }
     }
 
@@ -403,7 +404,9 @@ private fun InlineGroceryActionCard(
                         singleLine = true,
                         colors = appTextFieldColors(),
                         shape = RoundedCornerShape(RadiusSm),
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(itemNameFocusRequester),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                         keyboardActions = KeyboardActions(onNext = { quantityFocusRequester.requestFocus() })
                     )
