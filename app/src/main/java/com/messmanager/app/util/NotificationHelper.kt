@@ -8,7 +8,6 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.messmanager.app.MainActivity
-import com.messmanager.app.R
 
 object NotificationHelper {
 

@@ -16,7 +16,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
-import java.util.Calendar
 
 class DailyMealNotificationReceiver : BroadcastReceiver() {
 
