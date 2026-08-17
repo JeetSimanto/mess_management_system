@@ -9,7 +9,11 @@ import dagger.hilt.android.HiltAndroidApp
 class MessApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        NotificationHelper.createNotificationChannels(this)
-        NotificationScheduler.updateScheduleFromPreferences(this)
+        try {
+            NotificationHelper.createNotificationChannels(this)
+            NotificationScheduler.updateScheduleFromPreferences(this)
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
     }
 }

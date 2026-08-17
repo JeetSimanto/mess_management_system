@@ -20,28 +20,32 @@ object NotificationHelper {
     const val NOTIFICATION_ID_DAILY_MEAL = 8881
 
     fun createNotificationChannels(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-            val reminderChannel = NotificationChannel(
-                CHANNEL_ID_REMINDERS,
-                CHANNEL_NAME_REMINDERS,
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = "Daily notifications for borrowed items, due dates, and manager approvals."
+                val reminderChannel = NotificationChannel(
+                    CHANNEL_ID_REMINDERS,
+                    CHANNEL_NAME_REMINDERS,
+                    NotificationManager.IMPORTANCE_HIGH
+                ).apply {
+                    description = "Daily notifications for borrowed items, due dates, and manager approvals."
+                }
+
+                val dailyMealChannel = NotificationChannel(
+                    CHANNEL_ID_DAILY_MEALS,
+                    CHANNEL_NAME_DAILY_MEALS,
+                    NotificationManager.IMPORTANCE_HIGH
+                ).apply {
+                    description = "Automated daily notification summarizing total meals consumed."
+                    enableVibration(true)
+                }
+
+                notificationManager.createNotificationChannel(reminderChannel)
+                notificationManager.createNotificationChannel(dailyMealChannel)
             }
-
-            val dailyMealChannel = NotificationChannel(
-                CHANNEL_ID_DAILY_MEALS,
-                CHANNEL_NAME_DAILY_MEALS,
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = "Automated daily notification summarizing total meals consumed."
-                enableVibration(true)
-            }
-
-            notificationManager.createNotificationChannel(reminderChannel)
-            notificationManager.createNotificationChannel(dailyMealChannel)
+        } catch (e: Throwable) {
+            e.printStackTrace()
         }
     }
 

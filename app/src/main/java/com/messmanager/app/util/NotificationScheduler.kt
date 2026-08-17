@@ -37,7 +37,21 @@ object NotificationScheduler {
         }
 
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (alarmManager.canScheduleExactAlarms()) {
+                    alarmManager.setExactAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        calendar.timeInMillis,
+                        pendingIntent
+                    )
+                } else {
+                    alarmManager.setAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        calendar.timeInMillis,
+                        pendingIntent
+                    )
+                }
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 alarmManager.setExactAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP,
                     calendar.timeInMillis,
@@ -50,13 +64,16 @@ object NotificationScheduler {
                     pendingIntent
                 )
             }
-        } catch (e: SecurityException) {
-            // Fallback for Android 12+ if exact alarm permission is restricted
-            alarmManager.set(
-                AlarmManager.RTC_WAKEUP,
-                calendar.timeInMillis,
-                pendingIntent
-            )
+        } catch (t: Throwable) {
+            try {
+                alarmManager.set(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.timeInMillis,
+                    pendingIntent
+                )
+            } catch (e: Throwable) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -76,11 +93,15 @@ object NotificationScheduler {
     }
 
     fun updateScheduleFromPreferences(context: Context) {
-        val prefs = DailyNotificationPreferences(context)
-        if (prefs.isEnabled) {
-            scheduleDailyNotification(context, prefs.hour, prefs.minute)
-        } else {
-            cancelDailyNotification(context)
+        try {
+            val prefs = DailyNotificationPreferences(context)
+            if (prefs.isEnabled) {
+                scheduleDailyNotification(context, prefs.hour, prefs.minute)
+            } else {
+                cancelDailyNotification(context)
+            }
+        } catch (e: Throwable) {
+            e.printStackTrace()
         }
     }
 }
