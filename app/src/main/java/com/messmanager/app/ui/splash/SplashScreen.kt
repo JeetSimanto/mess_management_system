@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -106,6 +107,9 @@ fun SplashScreen(
         label = "ParticleFloat"
     )
 
+    val currentIsInitializing by rememberUpdatedState(isInitializing)
+    val currentOnSplashFinished by rememberUpdatedState(onSplashFinished)
+
     LaunchedEffect(Unit) {
         // Phase 1: Logo Spring Entrance
         launch {
@@ -142,13 +146,14 @@ fun SplashScreen(
             animationSpec = tween(1800, easing = FastOutSlowInEasing)
         )
 
-        // Wait for initialization to complete if necessary
-        while (isInitializing) {
+        // Wait for initialization to complete if necessary (max 3s timeout)
+        val startTime = System.currentTimeMillis()
+        while (currentIsInitializing && (System.currentTimeMillis() - startTime) < 3000L) {
             delay(100)
         }
 
-        delay(200)
-        onSplashFinished()
+        delay(150)
+        currentOnSplashFinished()
     }
 
     Box(
