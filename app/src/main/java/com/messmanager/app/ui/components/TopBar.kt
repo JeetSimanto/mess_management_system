@@ -1,7 +1,6 @@
 package com.messmanager.app.ui.components
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Handshake
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -13,7 +12,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
-import com.messmanager.app.ui.theme.DarkSecondary
 import com.messmanager.app.ui.theme.MilkerFontFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -22,7 +20,6 @@ fun TopBar(
     messName: String,
     monthYearText: String,
     onOpenSettings: () -> Unit,
-    onOpenBorrows: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     TopAppBar(
@@ -43,14 +40,6 @@ fun TopBar(
             )
         },
         actions = {
-            IconButton(onClick = onOpenBorrows) {
-                Icon(
-                    imageVector = Icons.Default.Handshake,
-                    contentDescription = "Borrow Requests",
-                    tint = DarkSecondary
-                )
-            }
-
             IconButton(onClick = onOpenSettings) {
                 Icon(
                     imageVector = Icons.Default.Settings,

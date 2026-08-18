@@ -103,8 +103,7 @@ fun NavGraph(
                 TopBar(
                     messName = activeMess.name,
                     monthYearText = monthText,
-                    onOpenSettings = { navController.navigate(Screen.Settings.route) },
-                    onOpenBorrows = { navController.navigate(Screen.Borrows.route) }
+                    onOpenSettings = { navController.navigate(Screen.Settings.route) }
                 )
             }
         },
@@ -164,7 +163,7 @@ fun NavGraph(
             }
 
             composable(Screen.Dashboard.route) {
-                DashboardScreen()
+                DashboardScreen(onOpenBorrows = { navController.navigate(Screen.Borrows.route) })
             }
 
             composable(Screen.Grocery.route) {

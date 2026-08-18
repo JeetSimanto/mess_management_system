@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Handshake
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Restaurant
@@ -57,6 +58,7 @@ import com.messmanager.app.util.CurrencyFormatter
 @Composable
 fun ManagerDashboardView(
     settlement: MessSettlement,
+    onOpenBorrows: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showSettlementDialog by remember { mutableStateOf(false) }
@@ -192,6 +194,63 @@ fun ManagerDashboardView(
                     imageVector = Icons.Default.ChevronRight,
                     contentDescription = "Open Settlement Breakdown",
                     tint = DarkPrimary,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Borrow & Lend Requests Card
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(20.dp))
+                .background(DarkSurface)
+                .border(BorderStroke(1.dp, DarkOutline), RoundedCornerShape(20.dp))
+                .clickable { onOpenBorrows() }
+                .padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .clip(CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Handshake,
+                            contentDescription = null,
+                            tint = DarkSecondary,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(14.dp))
+
+                    Column {
+                        Text(
+                            text = "Borrow & Lend Requests",
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = "Send or manage item requests with manager",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = "Open Borrow Requests",
+                    tint = DarkSecondary,
                     modifier = Modifier.size(24.dp)
                 )
             }
