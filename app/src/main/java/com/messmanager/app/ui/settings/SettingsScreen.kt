@@ -141,6 +141,12 @@ fun SettingsScreen(
         }
     }
 
+    LaunchedEffect(uiState.activeMess, uiState.userMesses, uiState.isLoading) {
+        if (!uiState.isLoading && uiState.activeMess == null && uiState.userMesses.isEmpty()) {
+            onNavigateToWelcome()
+        }
+    }
+
     if (uiState.isLoading) {
         Box(
             modifier = modifier

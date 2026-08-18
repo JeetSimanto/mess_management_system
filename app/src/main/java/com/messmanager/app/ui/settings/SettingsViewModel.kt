@@ -61,8 +61,6 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun loadSettingsData() {
-        val currentUid = authRepository.currentUserId ?: return
-
         // Load daily notification preferences
         _uiState.value = _uiState.value.copy(
             isDailyNotificationEnabled = dailyNotificationPreferences.isEnabled,
@@ -78,7 +76,7 @@ class SettingsViewModel @Inject constructor(
                     observeUserMesses(user.messIds)
                     val activeMessId = user.activeMessId
                     if (activeMessId != null) {
-                        observeMess(activeMessId, currentUid)
+                        observeMess(activeMessId, user.uid)
                     } else {
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
@@ -249,7 +247,8 @@ class SettingsViewModel @Inject constructor(
         val mess = _uiState.value.activeMess ?: return
         val currentUid = authRepository.currentUserId ?: return
 
-        if (!_uiState.value.isManager) {
+        val isManager = _uiState.value.isManager || mess.managerId == currentUid
+        if (!isManager) {
             _uiState.value = _uiState.value.copy(error = "Only the Mess Manager can delete this mess.")
             return
         }
