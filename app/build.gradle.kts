@@ -15,8 +15,8 @@ android {
         applicationId = "com.messmanager.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 59
-        versionName = "1.6.4"
+        versionCode = 60
+        versionName = "1.6.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
